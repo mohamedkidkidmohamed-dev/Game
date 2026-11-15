@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تجنب العقبات</title>
+<title>Neon Escape - تجنب العقبات</title>
 
 <style>
 * {
@@ -14,7 +14,7 @@
 body {
     margin: 0;
     padding: 15px;
-    background: #0b1020;
+    background: #080b19;
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
@@ -23,39 +23,39 @@ body {
 h1 {
     color: #00e5ff;
     font-size: 30px;
-    text-shadow: 0 0 15px #00e5ff;
+    text-shadow: 0 0 18px #00e5ff;
 }
 
 .stats {
     display: flex;
     justify-content: center;
-    gap: 25px;
+    gap: 12px;
     flex-wrap: wrap;
     margin: 15px;
 }
 
 .stat {
-    background: #18243a;
-    padding: 10px 17px;
+    background: #171e38;
+    padding: 12px 20px;
     border-radius: 12px;
-    border: 1px solid #30445f;
+    border: 1px solid #394d78;
 }
 
 canvas {
     width: min(94vw, 500px);
     height: auto;
-    background: #111c30;
-    border: 3px solid #00e5ff;
-    border-radius: 14px;
     display: block;
     margin: auto;
-    box-shadow: 0 0 20px #00e5ff33;
+    border: 2px solid #00e5ff;
+    border-radius: 15px;
+    box-shadow: 0 0 25px #00e5ff44;
+    background: #080d27;
 }
 
 button {
     padding: 12px 20px;
     margin: 7px;
-    background: #087eae;
+    background: #152b53;
     color: white;
     border: 1px solid #00e5ff;
     border-radius: 10px;
@@ -65,7 +65,7 @@ button {
 }
 
 button:active {
-    background: #00bcd4;
+    background: #007fbd;
 }
 
 .controls {
@@ -77,17 +77,16 @@ button:active {
 
 .controls button {
     width: 110px;
-    font-size: 27px;
+    font-size: 28px;
 }
 
 #message {
-    color: #ff5555;
-    font-size: 22px;
-    font-weight: bold;
+    color: #00e5ff;
+    font-size: 20px;
 }
 
 #shapeName {
-    color: #00e5ff;
+    color: #bd5cff;
 }
 
 </style>
@@ -95,7 +94,8 @@ button:active {
 
 <body>
 
-<h1>🎮 تجنب العقبات</h1>
+<h1>🌌 NEON ESCAPE</h1>
+<p>تجنب العقبات وحطم رقمك القياسي!</p>
 
 <div class="stats">
     <div class="stat">
@@ -143,15 +143,16 @@ const musicButton = document.getElementById("musicButton");
 
 let player;
 let obstacles = [];
+let stars = [];
+
 let score = 0;
 let frame = 0;
 let running = false;
-let gameOver = false;
 let leftPressed = false;
 let rightPressed = false;
-let animation;
+let animation = null;
 
-let best = Number(localStorage.getItem("bestScore")) || 0;
+let best = Number(localStorage.getItem("neonBest")) || 0;
 bestText.textContent = best;
 
 // الشخصيات
@@ -165,7 +166,18 @@ const shapes = [
 
 let selectedShape = 0;
 
-// الصوت والموسيقى
+// النجوم
+
+for (let i = 0; i < 65; i++) {
+    stars.push({
+        x: Math.random() * 500,
+        y: Math.random() * 500,
+        size: Math.random() * 2 + 0.5,
+        speed: Math.random() * 0.7 + 0.2
+    });
+}
+
+// الصوت
 
 let audioContext = null;
 let musicTimer = null;
@@ -189,14 +201,14 @@ function initAudio() {
     }
 }
 
-function playTone(frequency, duration, volume, type = "sine") {
+function playTone(freq, duration, volume, type = "sine") {
     if (!audioContext) return;
 
-    const oscillator = audioContext.createOscillator();
+    const osc = audioContext.createOscillator();
     const gain = audioContext.createGain();
 
-    oscillator.type = type;
-    oscillator.frequency.value = frequency;
+    osc.type = type;
+    osc.frequency.value = freq;
 
     gain.gain.setValueAtTime(volume, audioContext.currentTime);
     gain.gain.exponentialRampToValueAtTime(
@@ -204,22 +216,21 @@ function playTone(frequency, duration, volume, type = "sine") {
         audioContext.currentTime + duration
     );
 
-    oscillator.connect(gain);
+    osc.connect(gain);
     gain.connect(audioContext.destination);
 
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + duration);
+    osc.start();
+    osc.stop(audioContext.currentTime + duration);
 }
 
 function startMusic() {
-    if (!musicEnabled || musicTimer || !audioContext) return;
+    if (!musicEnabled || musicTimer) return;
 
     musicTimer = setInterval(() => {
         if (!running || !musicEnabled) return;
 
-        playTone(melody[noteIndex % melody.length], 0.28, 0.035);
+        playTone(melody[noteIndex % melody.length], 0.3, 0.025);
         noteIndex++;
-
     }, 320);
 }
 
@@ -237,7 +248,7 @@ function toggleMusic() {
 
     if (musicEnabled) {
         initAudio();
-        startMusic();
+        if (running) startMusic();
     } else {
         stopMusic();
     }
@@ -260,16 +271,56 @@ function deathSound() {
 // تغيير الشخصية
 
 function changeShape() {
-    selectedShape++;
+    if (running) return;
 
-    if (selectedShape >= shapes.length) {
-        selectedShape = 0;
-    }
-
+    selectedShape = (selectedShape + 1) % shapes.length;
     shapeName.textContent = shapes[selectedShape].name;
+
+    drawPreview();
 }
 
-// رسم اللاعب
+// الخلفية
+
+function drawBackground() {
+    const bg = ctx.createLinearGradient(0, 0, 0, 500);
+
+    bg.addColorStop(0, "#080d27");
+    bg.addColorStop(0.5, "#14244b");
+    bg.addColorStop(1, "#07101e");
+
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 500, 500);
+
+    // النجوم المتحركة
+
+    for (const star of stars) {
+        star.y += star.speed;
+
+        if (star.y > 500) {
+            star.y = 0;
+            star.x = Math.random() * 500;
+        }
+
+        ctx.fillStyle = "rgba(255,255,255,0.75)";
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // خطوط النيون
+
+    ctx.strokeStyle = "rgba(0,229,255,0.3)";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(8, 0);
+    ctx.lineTo(8, 500);
+    ctx.moveTo(492, 0);
+    ctx.lineTo(492, 500);
+    ctx.stroke();
+}
+
+// رسم النجمة
 
 function drawStar(x, y, size) {
     ctx.beginPath();
@@ -288,6 +339,8 @@ function drawStar(x, y, size) {
     ctx.closePath();
     ctx.fill();
 }
+
+// رسم اللاعب
 
 function drawPlayer() {
     const shape = shapes[selectedShape];
@@ -326,6 +379,15 @@ function drawPlayer() {
     ctx.shadowBlur = 0;
 }
 
+// معاينة الشخصية
+
+function drawPreview() {
+    drawBackground();
+
+    player = {x: 225, y: 225, width: 50, height: 50};
+    drawPlayer();
+}
+
 // العقبات
 
 function createObstacle() {
@@ -334,19 +396,19 @@ function createObstacle() {
         y: -40,
         width: 40,
         height: 40,
-        speed: 3 + Math.min(score / 300, 5)
+        speed: 3 + Math.min(score / 50, 5)
     });
 }
 
 function drawObstacles() {
     ctx.fillStyle = "#ff365e";
     ctx.shadowColor = "#ff365e";
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 14;
 
-    obstacles.forEach(o => {
+    for (const o of obstacles) {
         ctx.fillRect(o.x, o.y, o.width, o.height);
         o.y += o.speed;
-    });
+    }
 
     ctx.shadowBlur = 0;
 }
@@ -360,7 +422,7 @@ function collision(a, b) {
         a.y + a.height > b.y;
 }
 
-// التحكم
+// التحكم بالكيبورد
 
 document.addEventListener("keydown", e => {
     if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
@@ -385,6 +447,8 @@ document.addEventListener("keyup", e => {
         rightPressed = false;
     }
 });
+
+// التحكم باللمس
 
 function holdButton(id, direction) {
     const btn = document.getElementById(id);
@@ -413,7 +477,6 @@ holdButton("right", "right");
 
 function endGame() {
     running = false;
-    gameOver = true;
 
     stopMusic();
     deathSound();
@@ -422,24 +485,26 @@ function endGame() {
 
     if (score > best) {
         best = score;
-
-        localStorage.setItem("bestScore", best);
-
+        localStorage.setItem("neonBest", best);
         bestText.textContent = best;
         message.textContent = "🏆 رقم قياسي جديد!";
     }
 
-    ctx.fillStyle = "rgba(0,0,0,0.65)";
+    drawBackground();
+    drawPlayer();
+
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
     ctx.fillRect(0, 0, 500, 500);
 
-    ctx.fillStyle = "#ff365e";
     ctx.textAlign = "center";
+    ctx.fillStyle = "#ff365e";
     ctx.font = "bold 38px Arial";
-    ctx.fillText("GAME OVER", 250, 230);
+    ctx.fillText("GAME OVER", 250, 220);
 
     ctx.fillStyle = "white";
     ctx.font = "22px Arial";
-    ctx.fillText("Your Score: " + score, 250, 275);
+    ctx.fillText("Your Score: " + score, 250, 270);
+    ctx.fillText("Press START to play again", 250, 315);
 }
 
 // تحديث اللعبة
@@ -447,7 +512,7 @@ function endGame() {
 function update() {
     if (!running) return;
 
-    ctx.clearRect(0, 0, 500, 500);
+    drawBackground();
 
     if (leftPressed) player.x -= 7;
     if (rightPressed) player.x += 7;
@@ -464,19 +529,26 @@ function update() {
 
     drawObstacles();
 
-    obstacles = obstacles.filter(o => o.y < 500);
+    // حساب نقطة واحدة لكل عقبة تم تفاديها
 
-    for (let o of obstacles) {
+    obstacles = obstacles.filter(o => {
+        if (o.y >= 500) {
+            score++;
+            scoreText.textContent = score;
+            return false;
+        }
+
+        return true;
+    });
+
+    for (const o of obstacles) {
         if (collision(player, o)) {
             endGame();
             return;
         }
     }
 
-    score++;
-    scoreText.textContent = Math.floor(score / 10);
-
-    requestAnimationFrame(update);
+    animation = requestAnimationFrame(update);
 }
 
 // بدء اللعبة
@@ -495,13 +567,14 @@ function startGame() {
     };
 
     obstacles = [];
+
     score = 0;
     frame = 0;
+
     leftPressed = false;
     rightPressed = false;
 
     running = true;
-    gameOver = false;
 
     scoreText.textContent = "0";
     message.textContent = "🔥 حاول تحطم رقمك القياسي!";
@@ -510,12 +583,10 @@ function startGame() {
     startMusic();
 }
 
-// شاشة البداية
+// البداية
 
-ctx.fillStyle = "#00e5ff";
-ctx.textAlign = "center";
-ctx.font = "bold 27px Arial";
-ctx.fillText("PRESS START", 250, 250);
+player = {x: 225, y: 225, width: 50, height: 50};
+drawPreview();
 
 </script>
 
