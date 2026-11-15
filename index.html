@@ -5,8 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEON ESCAPE</title>
+
 <style>
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 15px;
@@ -15,33 +19,76 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
 }
+
 h1 {
     color: #00e5ff;
     font-size: 30px;
     text-shadow: 0 0 18px #00e5ff;
 }
-.stats, .levels {
+
+.stats {
     display: flex;
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
     margin: 15px;
 }
+
 .stat {
     background: #171e38;
     padding: 12px 20px;
     border-radius: 12px;
     border: 1px solid #394d78;
 }
+
+/* قائمة المستويات */
+
+.level-menu {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+}
+
+.level-options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #171e38;
+    border: 1px solid #00e5ff;
+    border-radius: 12px;
+    padding: 10px;
+    width: 155px;
+    z-index: 10;
+    box-shadow: 0 0 18px #00e5ff55;
+}
+
+.level-options.show {
+    display: block;
+}
+
+.level-options button {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+}
+
+#levelName {
+    color: #ffd700;
+    font-weight: bold;
+}
+
 canvas {
     width: min(94vw, 500px);
     height: auto;
     display: block;
-    margin: auto;
+    margin: 15px auto;
     border: 2px solid #00e5ff;
     border-radius: 15px;
     box-shadow: 0 0 25px #00e5ff44;
 }
+
 button {
     padding: 12px 18px;
     margin: 5px;
@@ -53,58 +100,103 @@ button {
     cursor: pointer;
     touch-action: none;
 }
-button:active { background: #007fbd; }
-button.selected {
+
+button:active {
     background: #007fbd;
-    border: 2px solid white;
-    box-shadow: 0 0 12px #00e5ff;
 }
-.level-btn { min-width: 95px; }
+
 .controls {
     display: flex;
     justify-content: center;
     gap: 35px;
     margin: 15px;
 }
+
 .controls button {
     width: 110px;
     font-size: 28px;
 }
-#message { color: #00e5ff; font-size: 20px; }
-#shapeName { color: #bd5cff; }
-#levelName { color: #ffd700; }
+
+#message {
+    color: #00e5ff;
+    font-size: 20px;
+}
+
+#shapeName {
+    color: #bd5cff;
+}
 </style>
 </head>
+
 <body>
 
 <h1>🌌 NEON ESCAPE</h1>
 <p>تجنب العقبات وحطم رقمك القياسي!</p>
 
 <div class="stats">
-    <div class="stat">⭐ النقاط: <span id="score">0</span></div>
-    <div class="stat">🏆 أفضل نتيجة: <span id="best">0</span></div>
+    <div class="stat">
+        ⭐ النقاط: <span id="score">0</span>
+    </div>
+
+    <div class="stat">
+        🏆 أفضل نتيجة: <span id="best">0</span>
+    </div>
 </div>
 
-<h3>🎮 اختر مستوى الصعوبة</h3>
-<div class="levels">
-    <button class="level-btn selected" id="easy" onclick="chooseDifficulty('easy')">🟢 سهل</button>
-    <button class="level-btn" id="medium" onclick="chooseDifficulty('medium')">🟡 متوسط</button>
-    <button class="level-btn" id="hard" onclick="chooseDifficulty('hard')">🔴 صعب</button>
+<!-- زر المستويات -->
+
+<div class="level-menu">
+
+    <button onclick="toggleLevels()" id="levelsButton">
+        🎮 المستويات
+    </button>
+
+    <div class="level-options" id="levelOptions">
+
+        <button onclick="chooseDifficulty('easy')">
+            🟢 سهل
+        </button>
+
+        <button onclick="chooseDifficulty('medium')">
+            🟡 متوسط
+        </button>
+
+        <button onclick="chooseDifficulty('hard')">
+            🔴 صعب
+        </button>
+
+    </div>
+
 </div>
 
-<p>المستوى الحالي: <span id="levelName">سهل</span></p>
+<p>
+    المستوى الحالي:
+    <span id="levelName">سهل</span>
+</p>
 
 <canvas id="game" width="500" height="500"></canvas>
 
 <h3 id="message">اختر شخصيتك وابدأ اللعب!</h3>
-<p>الشخصية: <span id="shapeName">المربع الأزرق</span></p>
+
+<p>
+    الشخصية:
+    <span id="shapeName">المربع الأزرق</span>
+</p>
 
 <div>
-    <button onclick="changeShape()">🎨 تغيير الشخصية</button>
-    <button onclick="toggleMusic()" id="musicButton">🔊 إيقاف الموسيقى</button>
+    <button onclick="changeShape()">
+        🎨 تغيير الشخصية
+    </button>
+
+    <button onclick="toggleMusic()" id="musicButton">
+        🔊 إيقاف الموسيقى
+    </button>
 </div>
+
 <div>
-    <button onclick="startGame()">▶️ ابدأ اللعب</button>
+    <button onclick="startGame()">
+        ▶️ ابدأ اللعب
+    </button>
 </div>
 
 <div class="controls">
@@ -116,6 +208,9 @@ button.selected {
 <p>الموبايل: استخدم أزرار الحركة</p>
 
 <script>
+
+// عناصر اللعبة
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -129,82 +224,160 @@ const levelName = document.getElementById("levelName");
 let player;
 let obstacles = [];
 let stars = [];
+
 let score = 0;
 let frame = 0;
 let spawnCounter = 0;
+
 let running = false;
 let leftPressed = false;
 let rightPressed = false;
 let animation = null;
 
+// أفضل نتيجة
+
 let best = Number(localStorage.getItem("neonBest")) || 0;
 bestText.textContent = best;
 
 // مستويات الصعوبة
+
 const difficulties = {
-    easy: { name: "سهل", speed: 2.5, spawn: 85 },
-    medium: { name: "متوسط", speed: 4, spawn: 60 },
-    hard: { name: "صعب", speed: 6, spawn: 42 }
+
+    easy: {
+        name: "سهل",
+        speed: 2.5,
+        spawn: 85
+    },
+
+    medium: {
+        name: "متوسط",
+        speed: 4,
+        spawn: 60
+    },
+
+    hard: {
+        name: "صعب",
+        speed: 6,
+        spawn: 42
+    }
+
 };
 
 let currentDifficulty = "easy";
 
+// فتح وإغلاق قائمة المستويات
+
+function toggleLevels() {
+
+    document
+        .getElementById("levelOptions")
+        .classList.toggle("show");
+
+}
+
+// اختيار المستوى
+
 function chooseDifficulty(level) {
+
     currentDifficulty = level;
+
     levelName.textContent = difficulties[level].name;
 
-    document.querySelectorAll(".level-btn").forEach(btn => {
-        btn.classList.remove("selected");
-    });
-
-    document.getElementById(level).classList.add("selected");
+    document
+        .getElementById("levelOptions")
+        .classList.remove("show");
 
     if (running) {
-        message.textContent = "تم تغيير المستوى إلى " + difficulties[level].name + "!";
+
+        message.textContent =
+            "تم تغيير المستوى إلى " +
+            difficulties[level].name + "!";
+
     }
+
 }
 
 // الشخصيات
+
 const shapes = [
-    {name: "المربع الأزرق", color: "#00e5ff", type: "square"},
-    {name: "الدائرة البنفسجية", color: "#bd5cff", type: "circle"},
-    {name: "النجمة الذهبية", color: "#ffd700", type: "star"},
-    {name: "الماسة الخضراء", color: "#00ff99", type: "diamond"}
+
+    {
+        name: "المربع الأزرق",
+        color: "#00e5ff",
+        type: "square"
+    },
+
+    {
+        name: "الدائرة البنفسجية",
+        color: "#bd5cff",
+        type: "circle"
+    },
+
+    {
+        name: "النجمة الذهبية",
+        color: "#ffd700",
+        type: "star"
+    },
+
+    {
+        name: "الماسة الخضراء",
+        color: "#00ff99",
+        type: "diamond"
+    }
+
 ];
 
 let selectedShape = 0;
 
 // النجوم
+
 for (let i = 0; i < 65; i++) {
+
     stars.push({
+
         x: Math.random() * 500,
         y: Math.random() * 500,
         size: Math.random() * 2 + 0.5,
         speed: Math.random() * 0.7 + 0.2
+
     });
+
 }
 
-// الصوت
+// الصوت والموسيقى
+
 let audioContext = null;
 let musicTimer = null;
 let musicEnabled = true;
 let noteIndex = 0;
 
 const melody = [
+
     261.63, 329.63, 392, 329.63,
     293.66, 349.23, 440, 349.23,
     261.63, 329.63, 392, 523.25,
     440, 392, 329.63, 293.66
+
 ];
 
 function initAudio() {
+
     if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        audioContext =
+            new (window.AudioContext ||
+            window.webkitAudioContext)();
+
     }
-    if (audioContext.state === "suspended") audioContext.resume();
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
 }
 
 function playTone(freq, duration, volume, type = "sine") {
+
     if (!audioContext) return;
 
     const osc = audioContext.createOscillator();
@@ -212,64 +385,112 @@ function playTone(freq, duration, volume, type = "sine") {
 
     osc.type = type;
     osc.frequency.value = freq;
-    gain.gain.setValueAtTime(volume, audioContext.currentTime);
+
+    gain.gain.setValueAtTime(
+        volume,
+        audioContext.currentTime
+    );
+
     gain.gain.exponentialRampToValueAtTime(
-        0.001, audioContext.currentTime + duration
+        0.001,
+        audioContext.currentTime + duration
     );
 
     osc.connect(gain);
     gain.connect(audioContext.destination);
+
     osc.start();
     osc.stop(audioContext.currentTime + duration);
+
 }
 
 function startMusic() {
+
     if (!musicEnabled || musicTimer) return;
 
     musicTimer = setInterval(() => {
+
         if (!running || !musicEnabled) return;
-        playTone(melody[noteIndex % melody.length], 0.3, 0.025);
+
+        playTone(
+            melody[noteIndex % melody.length],
+            0.3,
+            0.025
+        );
+
         noteIndex++;
+
     }, 320);
+
 }
 
 function stopMusic() {
+
     clearInterval(musicTimer);
     musicTimer = null;
+
 }
 
 function toggleMusic() {
+
     musicEnabled = !musicEnabled;
+
     musicButton.textContent = musicEnabled
         ? "🔊 إيقاف الموسيقى"
         : "🔇 تشغيل الموسيقى";
 
     if (musicEnabled) {
+
         initAudio();
+
         if (running) startMusic();
+
     } else {
+
         stopMusic();
+
     }
+
 }
 
 function deathSound() {
+
     initAudio();
+
     playTone(350, 0.3, 0.12, "sawtooth");
-    setTimeout(() => playTone(220, 0.5, 0.12, "triangle"), 180);
-    setTimeout(() => playTone(120, 0.7, 0.13, "sawtooth"), 400);
+
+    setTimeout(() => {
+        playTone(220, 0.5, 0.12, "triangle");
+    }, 180);
+
+    setTimeout(() => {
+        playTone(120, 0.7, 0.13, "sawtooth");
+    }, 400);
+
 }
 
 // تغيير الشخصية
+
 function changeShape() {
+
     if (running) return;
+
     selectedShape = (selectedShape + 1) % shapes.length;
+
     shapeName.textContent = shapes[selectedShape].name;
+
     drawPreview();
+
 }
 
-// الخلفية
+// رسم الخلفية
+
 function drawBackground() {
-    const bg = ctx.createLinearGradient(0, 0, 0, 500);
+
+    const bg = ctx.createLinearGradient(
+        0, 0, 0, 500
+    );
+
     bg.addColorStop(0, "#080d27");
     bg.addColorStop(0.5, "#14244b");
     bg.addColorStop(1, "#07101e");
@@ -277,47 +498,88 @@ function drawBackground() {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 500, 500);
 
+    // النجوم
+
     for (const star of stars) {
+
         star.y += star.speed;
+
         if (star.y > 500) {
+
             star.y = 0;
             star.x = Math.random() * 500;
+
         }
 
         ctx.fillStyle = "rgba(255,255,255,0.75)";
+
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+
+        ctx.arc(
+            star.x,
+            star.y,
+            star.size,
+            0,
+            Math.PI * 2
+        );
+
         ctx.fill();
+
     }
+
+    // خطوط النيون
 
     ctx.strokeStyle = "rgba(0,229,255,0.3)";
     ctx.lineWidth = 2;
+
     ctx.beginPath();
+
     ctx.moveTo(8, 0);
     ctx.lineTo(8, 500);
+
     ctx.moveTo(492, 0);
     ctx.lineTo(492, 500);
+
     ctx.stroke();
+
 }
 
 // رسم النجمة
+
 function drawStar(x, y, size) {
+
     ctx.beginPath();
+
     for (let i = 0; i < 10; i++) {
-        const radius = i % 2 === 0 ? size : size / 2;
-        const angle = i * Math.PI / 5 - Math.PI / 2;
+
+        const radius =
+            i % 2 === 0 ? size : size / 2;
+
+        const angle =
+            i * Math.PI / 5 - Math.PI / 2;
+
         const px = x + Math.cos(angle) * radius;
         const py = y + Math.sin(angle) * radius;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+
+        if (i === 0) {
+            ctx.moveTo(px, py);
+        } else {
+            ctx.lineTo(px, py);
+        }
+
     }
+
     ctx.closePath();
     ctx.fill();
+
 }
 
 // رسم اللاعب
+
 function drawPlayer() {
+
     const shape = shapes[selectedShape];
+
     ctx.fillStyle = shape.color;
     ctx.shadowColor = shape.color;
     ctx.shadowBlur = 18;
@@ -326,126 +588,219 @@ function drawPlayer() {
     const y = player.y;
 
     if (shape.type === "square") {
+
         ctx.fillRect(x, y, 50, 50);
+
     }
 
     if (shape.type === "circle") {
+
         ctx.beginPath();
-        ctx.arc(x + 25, y + 25, 25, 0, Math.PI * 2);
+
+        ctx.arc(
+            x + 25,
+            y + 25,
+            25,
+            0,
+            Math.PI * 2
+        );
+
         ctx.fill();
+
     }
 
     if (shape.type === "star") {
+
         drawStar(x + 25, y + 25, 27);
+
     }
 
     if (shape.type === "diamond") {
+
         ctx.beginPath();
+
         ctx.moveTo(x + 25, y);
         ctx.lineTo(x + 50, y + 25);
         ctx.lineTo(x + 25, y + 50);
         ctx.lineTo(x, y + 25);
+
         ctx.closePath();
         ctx.fill();
+
     }
 
     ctx.shadowBlur = 0;
+
 }
+
+// معاينة الشخصية
 
 function drawPreview() {
+
     drawBackground();
-    player = {x: 225, y: 225, width: 50, height: 50};
+
+    player = {
+        x: 225,
+        y: 225,
+        width: 50,
+        height: 50
+    };
+
     drawPlayer();
+
 }
 
-// العقبات
+// إنشاء العقبات
+
 function createObstacle() {
+
     obstacles.push({
+
         x: Math.random() * 455,
         y: -40,
         width: 40,
         height: 40
+
     });
+
 }
 
+// رسم العقبات
+
 function drawObstacles() {
+
     ctx.fillStyle = "#ff365e";
     ctx.shadowColor = "#ff365e";
     ctx.shadowBlur = 14;
 
     for (const o of obstacles) {
+
         o.y += difficulties[currentDifficulty].speed;
-        ctx.fillRect(o.x, o.y, o.width, o.height);
+
+        ctx.fillRect(
+            o.x,
+            o.y,
+            o.width,
+            o.height
+        );
+
     }
 
     ctx.shadowBlur = 0;
+
 }
 
 // التصادم
+
 function collision(a, b) {
+
     return a.x < b.x + b.width &&
         a.x + a.width > b.x &&
         a.y < b.y + b.height &&
         a.y + a.height > b.y;
+
 }
 
-// الكيبورد
-document.addEventListener("keydown", e => {
-    if (["ArrowLeft", "ArrowRight"].includes(e.key)) e.preventDefault();
+// التحكم بالكيبورد
 
-    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+document.addEventListener("keydown", e => {
+
+    if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+    }
+
+    if (
+        e.key === "ArrowLeft" ||
+        e.key.toLowerCase() === "a"
+    ) {
         leftPressed = true;
     }
-    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+
+    if (
+        e.key === "ArrowRight" ||
+        e.key.toLowerCase() === "d"
+    ) {
         rightPressed = true;
     }
+
 });
 
 document.addEventListener("keyup", e => {
-    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+
+    if (
+        e.key === "ArrowLeft" ||
+        e.key.toLowerCase() === "a"
+    ) {
         leftPressed = false;
     }
-    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+
+    if (
+        e.key === "ArrowRight" ||
+        e.key.toLowerCase() === "d"
+    ) {
         rightPressed = false;
     }
+
 });
 
 // أزرار الموبايل
+
 function holdButton(id, direction) {
+
     const btn = document.getElementById(id);
 
     btn.addEventListener("pointerdown", e => {
+
         e.preventDefault();
-        if (direction === "left") leftPressed = true;
-        else rightPressed = true;
+
+        if (direction === "left") {
+            leftPressed = true;
+        } else {
+            rightPressed = true;
+        }
+
     });
 
     function release() {
-        if (direction === "left") leftPressed = false;
-        else rightPressed = false;
+
+        if (direction === "left") {
+            leftPressed = false;
+        } else {
+            rightPressed = false;
+        }
+
     }
 
     btn.addEventListener("pointerup", release);
     btn.addEventListener("pointerleave", release);
     btn.addEventListener("pointercancel", release);
+
 }
 
 holdButton("left", "left");
 holdButton("right", "right");
 
 // نهاية اللعبة
+
 function endGame() {
+
     running = false;
+
     stopMusic();
     deathSound();
 
     message.textContent = "💀 انتهت اللعبة!";
 
     if (score > best) {
+
         best = score;
+
         localStorage.setItem("neonBest", best);
+
         bestText.textContent = best;
+
         message.textContent = "🏆 رقم قياسي جديد!";
+
     }
 
     drawBackground();
@@ -455,90 +810,157 @@ function endGame() {
     ctx.fillRect(0, 0, 500, 500);
 
     ctx.textAlign = "center";
+
     ctx.fillStyle = "#ff365e";
     ctx.font = "bold 38px Arial";
+
     ctx.fillText("GAME OVER", 250, 220);
 
     ctx.fillStyle = "white";
     ctx.font = "22px Arial";
-    ctx.fillText("Your Score: " + score, 250, 270);
-    ctx.fillText("Press START to play again", 250, 315);
+
+    ctx.fillText(
+        "Your Score: " + score,
+        250,
+        270
+    );
+
+    ctx.fillText(
+        "Press START to play again",
+        250,
+        315
+    );
+
 }
 
 // تحديث اللعبة
+
 function update() {
+
     if (!running) return;
 
     drawBackground();
 
-    if (leftPressed) player.x -= 7;
-    if (rightPressed) player.x += 7;
+    if (leftPressed) {
+        player.x -= 7;
+    }
 
-    player.x = Math.max(0, Math.min(450, player.x));
+    if (rightPressed) {
+        player.x += 7;
+    }
+
+    player.x = Math.max(
+        0,
+        Math.min(450, player.x)
+    );
+
     drawPlayer();
 
     frame++;
     spawnCounter++;
 
     // ظهور العقبات حسب المستوى
-    if (spawnCounter >= difficulties[currentDifficulty].spawn) {
+
+    if (
+        spawnCounter >=
+        difficulties[currentDifficulty].spawn
+    ) {
+
         createObstacle();
         spawnCounter = 0;
+
     }
 
     drawObstacles();
 
-    // كل عقبة يتم تفاديها = نقطة واحدة
+    // نقطة واحدة لكل عقبة يتم تفاديها
+
     obstacles = obstacles.filter(o => {
+
         if (o.y >= 500) {
+
             score++;
+
             scoreText.textContent = score;
+
             return false;
+
         }
+
         return true;
+
     });
 
+    // فحص التصادم
+
     for (const o of obstacles) {
+
         if (collision(player, o)) {
+
             endGame();
             return;
+
         }
+
     }
 
     animation = requestAnimationFrame(update);
+
 }
 
 // بدء اللعبة
+
 function startGame() {
+
     initAudio();
+
     cancelAnimationFrame(animation);
+
     stopMusic();
 
     player = {
+
         x: 225,
         y: 430,
         width: 50,
         height: 50
+
     };
 
     obstacles = [];
+
     score = 0;
     frame = 0;
     spawnCounter = 0;
+
     leftPressed = false;
     rightPressed = false;
+
     running = true;
 
     scoreText.textContent = "0";
-    message.textContent = "🔥 حاول تحطم رقمك القياسي!";
+
+    message.textContent =
+        "🔥 حاول تحطم رقمك القياسي!";
 
     update();
+
     startMusic();
+
 }
 
 // البداية
-player = {x: 225, y: 225, width: 50, height: 50};
+
+player = {
+    x: 225,
+    y: 225,
+    width: 50,
+    height: 50
+};
+
 drawPreview();
+
 </script>
+
 </body>
 </html>
