@@ -7,51 +7,87 @@
 <title>تجنب العقبات</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
-    background: #101820;
-    color: white;
-    font-family: Arial;
-    text-align: center;
     padding: 15px;
+    background: #0b1020;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
 }
 
-h1 { color: #00e5ff; }
+h1 {
+    color: #00e5ff;
+    font-size: 30px;
+    text-shadow: 0 0 15px #00e5ff;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin: 15px;
+}
+
+.stat {
+    background: #18243a;
+    padding: 10px 17px;
+    border-radius: 12px;
+    border: 1px solid #30445f;
+}
 
 canvas {
-    width: min(92vw, 500px);
+    width: min(94vw, 500px);
     height: auto;
-    background: #202c39;
+    background: #111c30;
     border: 3px solid #00e5ff;
-    border-radius: 10px;
+    border-radius: 14px;
     display: block;
     margin: auto;
+    box-shadow: 0 0 20px #00e5ff33;
+}
+
+button {
+    padding: 12px 20px;
+    margin: 7px;
+    background: #087eae;
+    color: white;
+    border: 1px solid #00e5ff;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    touch-action: none;
+}
+
+button:active {
+    background: #00bcd4;
 }
 
 .controls {
     display: flex;
     justify-content: center;
     gap: 35px;
-    margin: 18px;
-}
-
-button {
-    padding: 14px 25px;
-    background: #00bcd4;
-    border: none;
-    border-radius: 10px;
-    font-size: 20px;
-    color: white;
-    cursor: pointer;
-    touch-action: none;
-    user-select: none;
+    margin: 15px;
 }
 
 .controls button {
-    width: 100px;
-    font-size: 28px;
+    width: 110px;
+    font-size: 27px;
+}
+
+#message {
+    color: #ff5555;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+#shapeName {
+    color: #00e5ff;
 }
 
 </style>
@@ -60,48 +96,294 @@ button {
 <body>
 
 <h1>🎮 تجنب العقبات</h1>
-<h2>النقاط: <span id="score">0</span></h2>
+
+<div class="stats">
+    <div class="stat">
+        ⭐ النقاط: <span id="score">0</span>
+    </div>
+
+    <div class="stat">
+        🏆 أفضل نتيجة: <span id="best">0</span>
+    </div>
+</div>
 
 <canvas id="game" width="500" height="500"></canvas>
+
+<h3 id="message">اختر شخصيتك وابدأ اللعب!</h3>
+
+<p>الشخصية: <span id="shapeName">المربع الأزرق</span></p>
+
+<div>
+    <button onclick="changeShape()">🎨 تغيير الشخصية</button>
+    <button onclick="toggleMusic()" id="musicButton">🔊 إيقاف الموسيقى</button>
+</div>
+
+<div>
+    <button onclick="startGame()">▶️ ابدأ اللعب</button>
+</div>
 
 <div class="controls">
     <button id="left">⬅️</button>
     <button id="right">➡️</button>
 </div>
 
-<button onclick="restart()">إعادة اللعب</button>
-
 <p>الكمبيوتر: الأسهم أو A و D</p>
-<p>الموبايل: استخدم الأزرار بالأسفل</p>
+<p>الموبايل: استخدم أزرار الحركة</p>
 
 <script>
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const scoreText = document.getElementById("score");
 
-let player, obstacles, score, frame, gameOver;
+const scoreText = document.getElementById("score");
+const bestText = document.getElementById("best");
+const message = document.getElementById("message");
+const shapeName = document.getElementById("shapeName");
+const musicButton = document.getElementById("musicButton");
+
+let player;
+let obstacles = [];
+let score = 0;
+let frame = 0;
+let running = false;
+let gameOver = false;
 let leftPressed = false;
 let rightPressed = false;
 let animation;
 
-function reset() {
-    player = { x: 225, y: 430, width: 50, height: 50 };
-    obstacles = [];
-    score = 0;
-    frame = 0;
-    gameOver = false;
-    scoreText.textContent = "0";
+let best = Number(localStorage.getItem("bestScore")) || 0;
+bestText.textContent = best;
+
+// الشخصيات
+
+const shapes = [
+    {name: "المربع الأزرق", color: "#00e5ff", type: "square"},
+    {name: "الدائرة البنفسجية", color: "#bd5cff", type: "circle"},
+    {name: "النجمة الذهبية", color: "#ffd700", type: "star"},
+    {name: "الماسة الخضراء", color: "#00ff99", type: "diamond"}
+];
+
+let selectedShape = 0;
+
+// الصوت والموسيقى
+
+let audioContext = null;
+let musicTimer = null;
+let musicEnabled = true;
+let noteIndex = 0;
+
+const melody = [
+    261.63, 329.63, 392.00, 329.63,
+    293.66, 349.23, 440.00, 349.23,
+    261.63, 329.63, 392.00, 523.25,
+    440.00, 392.00, 329.63, 293.66
+];
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
 }
 
+function playTone(frequency, duration, volume, type = "sine") {
+    if (!audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(volume, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + duration
+    );
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+}
+
+function startMusic() {
+    if (!musicEnabled || musicTimer || !audioContext) return;
+
+    musicTimer = setInterval(() => {
+        if (!running || !musicEnabled) return;
+
+        playTone(melody[noteIndex % melody.length], 0.28, 0.035);
+        noteIndex++;
+
+    }, 320);
+}
+
+function stopMusic() {
+    clearInterval(musicTimer);
+    musicTimer = null;
+}
+
+function toggleMusic() {
+    musicEnabled = !musicEnabled;
+
+    musicButton.textContent = musicEnabled
+        ? "🔊 إيقاف الموسيقى"
+        : "🔇 تشغيل الموسيقى";
+
+    if (musicEnabled) {
+        initAudio();
+        startMusic();
+    } else {
+        stopMusic();
+    }
+}
+
+function deathSound() {
+    initAudio();
+
+    playTone(350, 0.3, 0.12, "sawtooth");
+
+    setTimeout(() => {
+        playTone(220, 0.5, 0.12, "triangle");
+    }, 180);
+
+    setTimeout(() => {
+        playTone(120, 0.7, 0.13, "sawtooth");
+    }, 400);
+}
+
+// تغيير الشخصية
+
+function changeShape() {
+    selectedShape++;
+
+    if (selectedShape >= shapes.length) {
+        selectedShape = 0;
+    }
+
+    shapeName.textContent = shapes[selectedShape].name;
+}
+
+// رسم اللاعب
+
+function drawStar(x, y, size) {
+    ctx.beginPath();
+
+    for (let i = 0; i < 10; i++) {
+        const radius = i % 2 === 0 ? size : size / 2;
+        const angle = i * Math.PI / 5 - Math.PI / 2;
+
+        const px = x + Math.cos(angle) * radius;
+        const py = y + Math.sin(angle) * radius;
+
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawPlayer() {
+    const shape = shapes[selectedShape];
+
+    ctx.fillStyle = shape.color;
+    ctx.shadowColor = shape.color;
+    ctx.shadowBlur = 18;
+
+    const x = player.x;
+    const y = player.y;
+
+    if (shape.type === "square") {
+        ctx.fillRect(x, y, 50, 50);
+    }
+
+    if (shape.type === "circle") {
+        ctx.beginPath();
+        ctx.arc(x + 25, y + 25, 25, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    if (shape.type === "star") {
+        drawStar(x + 25, y + 25, 27);
+    }
+
+    if (shape.type === "diamond") {
+        ctx.beginPath();
+        ctx.moveTo(x + 25, y);
+        ctx.lineTo(x + 50, y + 25);
+        ctx.lineTo(x + 25, y + 50);
+        ctx.lineTo(x, y + 25);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    ctx.shadowBlur = 0;
+}
+
+// العقبات
+
+function createObstacle() {
+    obstacles.push({
+        x: Math.random() * 455,
+        y: -40,
+        width: 40,
+        height: 40,
+        speed: 3 + Math.min(score / 300, 5)
+    });
+}
+
+function drawObstacles() {
+    ctx.fillStyle = "#ff365e";
+    ctx.shadowColor = "#ff365e";
+    ctx.shadowBlur = 12;
+
+    obstacles.forEach(o => {
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+        o.y += o.speed;
+    });
+
+    ctx.shadowBlur = 0;
+}
+
+// التصادم
+
+function collision(a, b) {
+    return a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
+}
+
+// التحكم
+
 document.addEventListener("keydown", e => {
-    if (["ArrowLeft", "ArrowRight"].includes(e.key)) e.preventDefault();
-    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") leftPressed = true;
-    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") rightPressed = true;
+    if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+    }
+
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+        leftPressed = true;
+    }
+
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+        rightPressed = true;
+    }
 });
 
 document.addEventListener("keyup", e => {
-    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") leftPressed = false;
-    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") rightPressed = false;
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+        leftPressed = false;
+    }
+
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+        rightPressed = false;
+    }
 });
 
 function holdButton(id, direction) {
@@ -109,6 +391,7 @@ function holdButton(id, direction) {
 
     btn.addEventListener("pointerdown", e => {
         e.preventDefault();
+
         if (direction === "left") leftPressed = true;
         else rightPressed = true;
     });
@@ -126,14 +409,44 @@ function holdButton(id, direction) {
 holdButton("left", "left");
 holdButton("right", "right");
 
-function collision(a, b) {
-    return a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y;
+// نهاية اللعبة
+
+function endGame() {
+    running = false;
+    gameOver = true;
+
+    stopMusic();
+    deathSound();
+
+    message.textContent = "💀 انتهت اللعبة!";
+
+    if (score > best) {
+        best = score;
+
+        localStorage.setItem("bestScore", best);
+
+        bestText.textContent = best;
+        message.textContent = "🏆 رقم قياسي جديد!";
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.65)";
+    ctx.fillRect(0, 0, 500, 500);
+
+    ctx.fillStyle = "#ff365e";
+    ctx.textAlign = "center";
+    ctx.font = "bold 38px Arial";
+    ctx.fillText("GAME OVER", 250, 230);
+
+    ctx.fillStyle = "white";
+    ctx.font = "22px Arial";
+    ctx.fillText("Your Score: " + score, 250, 275);
 }
 
+// تحديث اللعبة
+
 function update() {
+    if (!running) return;
+
     ctx.clearRect(0, 0, 500, 500);
 
     if (leftPressed) player.x -= 7;
@@ -141,56 +454,69 @@ function update() {
 
     player.x = Math.max(0, Math.min(450, player.x));
 
-    ctx.fillStyle = "#00e5ff";
-    ctx.fillRect(player.x, player.y, 50, 50);
+    drawPlayer();
 
     frame++;
 
     if (frame % 55 === 0) {
-        obstacles.push({
-            x: Math.random() * 460,
-            y: -40,
-            width: 40,
-            height: 40,
-            speed: 3 + score / 150
-        });
+        createObstacle();
     }
 
-    ctx.fillStyle = "#ff3b3b";
-
-    for (let o of obstacles) {
-        o.y += o.speed;
-        ctx.fillRect(o.x, o.y, o.width, o.height);
-
-        if (collision(player, o)) {
-            gameOver = true;
-        }
-    }
+    drawObstacles();
 
     obstacles = obstacles.filter(o => o.y < 500);
+
+    for (let o of obstacles) {
+        if (collision(player, o)) {
+            endGame();
+            return;
+        }
+    }
 
     score++;
     scoreText.textContent = Math.floor(score / 10);
 
-    if (gameOver) {
-        ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-        ctx.font = "bold 38px Arial";
-        ctx.fillText("GAME OVER", 250, 240);
-        return;
-    }
-
-    animation = requestAnimationFrame(update);
+    requestAnimationFrame(update);
 }
 
-function restart() {
+// بدء اللعبة
+
+function startGame() {
+    initAudio();
+
     cancelAnimationFrame(animation);
-    reset();
+    stopMusic();
+
+    player = {
+        x: 225,
+        y: 430,
+        width: 50,
+        height: 50
+    };
+
+    obstacles = [];
+    score = 0;
+    frame = 0;
+    leftPressed = false;
+    rightPressed = false;
+
+    running = true;
+    gameOver = false;
+
+    scoreText.textContent = "0";
+    message.textContent = "🔥 حاول تحطم رقمك القياسي!";
+
     update();
+    startMusic();
 }
 
-reset();
-update();
+// شاشة البداية
+
+ctx.fillStyle = "#00e5ff";
+ctx.textAlign = "center";
+ctx.font = "bold 27px Arial";
+ctx.fillText("PRESS START", 250, 250);
+
 </script>
 
 </body>
