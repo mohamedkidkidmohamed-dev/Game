@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تجنب العقبات</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: #101820;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+    padding: 15px;
+}
+
+h1 { color: #00e5ff; }
+
+canvas {
+    width: min(92vw, 500px);
+    height: auto;
+    background: #202c39;
+    border: 3px solid #00e5ff;
+    border-radius: 10px;
+    display: block;
+    margin: auto;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    margin: 18px;
+}
+
+button {
+    padding: 14px 25px;
+    background: #00bcd4;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+}
+
+.controls button {
+    width: 100px;
+    font-size: 28px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🎮 تجنب العقبات</h1>
+<h2>النقاط: <span id="score">0</span></h2>
+
+<canvas id="game" width="500" height="500"></canvas>
+
+<div class="controls">
+    <button id="left">⬅️</button>
+    <button id="right">➡️</button>
+</div>
+
+<button onclick="restart()">إعادة اللعب</button>
+
+<p>الكمبيوتر: الأسهم أو A و D</p>
+<p>الموبايل: استخدم الأزرار بالأسفل</p>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const scoreText = document.getElementById("score");
+
+let player, obstacles, score, frame, gameOver;
+let leftPressed = false;
+let rightPressed = false;
+let animation;
+
+function reset() {
+    player = { x: 225, y: 430, width: 50, height: 50 };
+    obstacles = [];
+    score = 0;
+    frame = 0;
+    gameOver = false;
+    scoreText.textContent = "0";
+}
+
+document.addEventListener("keydown", e => {
+    if (["ArrowLeft", "ArrowRight"].includes(e.key)) e.preventDefault();
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") leftPressed = true;
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") rightPressed = true;
+});
+
+document.addEventListener("keyup", e => {
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") leftPressed = false;
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") rightPressed = false;
+});
+
+function holdButton(id, direction) {
+    const btn = document.getElementById(id);
+
+    btn.addEventListener("pointerdown", e => {
+        e.preventDefault();
+        if (direction === "left") leftPressed = true;
+        else rightPressed = true;
+    });
+
+    function release() {
+        if (direction === "left") leftPressed = false;
+        else rightPressed = false;
+    }
+
+    btn.addEventListener("pointerup", release);
+    btn.addEventListener("pointerleave", release);
+    btn.addEventListener("pointercancel", release);
+}
+
+holdButton("left", "left");
+holdButton("right", "right");
+
+function collision(a, b) {
+    return a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
+}
+
+function update() {
+    ctx.clearRect(0, 0, 500, 500);
+
+    if (leftPressed) player.x -= 7;
+    if (rightPressed) player.x += 7;
+
+    player.x = Math.max(0, Math.min(450, player.x));
+
+    ctx.fillStyle = "#00e5ff";
+    ctx.fillRect(player.x, player.y, 50, 50);
+
+    frame++;
+
+    if (frame % 55 === 0) {
+        obstacles.push({
+            x: Math.random() * 460,
+            y: -40,
+            width: 40,
+            height: 40,
+            speed: 3 + score / 150
+        });
+    }
+
+    ctx.fillStyle = "#ff3b3b";
+
+    for (let o of obstacles) {
+        o.y += o.speed;
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+
+        if (collision(player, o)) {
+            gameOver = true;
+        }
+    }
+
+    obstacles = obstacles.filter(o => o.y < 500);
+
+    score++;
+    scoreText.textContent = Math.floor(score / 10);
+
+    if (gameOver) {
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.font = "bold 38px Arial";
+        ctx.fillText("GAME OVER", 250, 240);
+        return;
+    }
+
+    animation = requestAnimationFrame(update);
+}
+
+function restart() {
+    cancelAnimationFrame(animation);
+    reset();
+    update();
+}
+
+reset();
+update();
+</script>
+
+</body>
+</html>
