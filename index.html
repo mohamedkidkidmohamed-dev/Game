@@ -4,962 +4,532 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEON ESCAPE</title>
+<title>COSMIC DASH</title>
 
 <style>
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    padding: 15px;
-    background: #080b19;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
+  margin: 0;
+  min-height: 100vh;
+  background: #050817;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  overflow-x: hidden;
 }
 
 h1 {
-    color: #00e5ff;
-    font-size: 30px;
-    text-shadow: 0 0 18px #00e5ff;
+  color: #00eaff;
+  font-size: 36px;
+  text-shadow: 0 0 15px #00eaff;
+  margin: 18px 0 5px;
+  letter-spacing: 3px;
 }
 
-.stats {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin: 15px;
+.subtitle {
+  color: #a8b8d8;
+  margin-bottom: 12px;
 }
 
-.stat {
-    background: #171e38;
-    padding: 12px 20px;
-    border-radius: 12px;
-    border: 1px solid #394d78;
+.info {
+  display: flex;
+  justify-content: center;
+  gap: 35px;
+  margin: 12px;
+  font-size: 18px;
 }
 
-/* قائمة المستويات */
-
-.level-menu {
-    position: relative;
-    display: inline-block;
-    margin: 10px;
-}
-
-.level-options {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #171e38;
-    border: 1px solid #00e5ff;
-    border-radius: 12px;
-    padding: 10px;
-    width: 155px;
-    z-index: 10;
-    box-shadow: 0 0 18px #00e5ff55;
-}
-
-.level-options.show {
-    display: block;
-}
-
-.level-options button {
-    display: block;
-    width: 100%;
-    margin: 5px 0;
-}
-
-#levelName {
-    color: #ffd700;
-    font-weight: bold;
+.info span {
+  color: #00eaff;
+  font-weight: bold;
 }
 
 canvas {
-    width: min(94vw, 500px);
-    height: auto;
-    display: block;
-    margin: 15px auto;
-    border: 2px solid #00e5ff;
-    border-radius: 15px;
-    box-shadow: 0 0 25px #00e5ff44;
+  display: block;
+  margin: 12px auto;
+  width: min(92vw, 420px);
+  height: auto;
+  background: #080d25;
+  border: 2px solid #00d9ff;
+  border-radius: 12px;
+  box-shadow: 0 0 22px #00bfff55;
+  touch-action: none;
 }
 
 button {
-    padding: 12px 18px;
-    margin: 5px;
-    background: #152b53;
-    color: white;
-    border: 1px solid #00e5ff;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    touch-action: none;
+  border: 1px solid #00eaff;
+  background: #101b3b;
+  color: white;
+  padding: 11px 18px;
+  margin: 5px;
+  border-radius: 9px;
+  font-size: 15px;
+  cursor: pointer;
 }
 
-button:active {
-    background: #007fbd;
+button:hover {
+  background: #073e59;
+  box-shadow: 0 0 12px #00eaff;
+}
+
+.shapes {
+  margin: 8px;
+}
+
+.shapes button {
+  font-size: 20px;
+  padding: 8px 13px;
+}
+
+.selected {
+  background: #07516b;
+  box-shadow: 0 0 12px #00eaff;
 }
 
 .controls {
-    display: flex;
-    justify-content: center;
-    gap: 35px;
-    margin: 15px;
+  margin: 10px;
 }
 
 .controls button {
-    width: 110px;
-    font-size: 28px;
+  width: 90px;
+  font-size: 22px;
+  touch-action: none;
 }
 
-#message {
-    color: #00e5ff;
-    font-size: 20px;
-}
-
-#shapeName {
-    color: #bd5cff;
+footer {
+  color: #687a9e;
+  font-size: 12px;
+  margin: 18px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🌌 NEON ESCAPE</h1>
-<p>تجنب العقبات وحطم رقمك القياسي!</p>
+<h1>COSMIC DASH</h1>
+<div class="subtitle">Dodge the obstacles. Beat your record!</div>
 
-<div class="stats">
-    <div class="stat">
-        ⭐ النقاط: <span id="score">0</span>
-    </div>
-
-    <div class="stat">
-        🏆 أفضل نتيجة: <span id="best">0</span>
-    </div>
+<div class="info">
+  <div>Score: <span id="score">0</span></div>
+  <div>Best: <span id="best">0</span></div>
 </div>
 
-<!-- زر المستويات -->
-
-<div class="level-menu">
-
-    <button onclick="toggleLevels()" id="levelsButton">
-        🎮 المستويات
-    </button>
-
-    <div class="level-options" id="levelOptions">
-
-        <button onclick="chooseDifficulty('easy')">
-            🟢 سهل
-        </button>
-
-        <button onclick="chooseDifficulty('medium')">
-            🟡 متوسط
-        </button>
-
-        <button onclick="chooseDifficulty('hard')">
-            🔴 صعب
-        </button>
-
-    </div>
-
+<div class="shapes">
+  <button onclick="chooseShape('square',this)" class="selected">■</button>
+  <button onclick="chooseShape('circle',this)">●</button>
+  <button onclick="chooseShape('diamond',this)">◆</button>
+  <button onclick="chooseShape('star',this)">★</button>
 </div>
 
-<p>
-    المستوى الحالي:
-    <span id="levelName">سهل</span>
-</p>
-
-<canvas id="game" width="500" height="500"></canvas>
-
-<h3 id="message">اختر شخصيتك وابدأ اللعب!</h3>
-
-<p>
-    الشخصية:
-    <span id="shapeName">المربع الأزرق</span>
-</p>
+<canvas id="game" width="420" height="560"></canvas>
 
 <div>
-    <button onclick="changeShape()">
-        🎨 تغيير الشخصية
-    </button>
-
-    <button onclick="toggleMusic()" id="musicButton">
-        🔊 إيقاف الموسيقى
-    </button>
-</div>
-
-<div>
-    <button onclick="startGame()">
-        ▶️ ابدأ اللعب
-    </button>
+  <button onclick="startGame()">▶ ابدأ اللعب</button>
+  <button onclick="toggleMusic()" id="musicButton">🔊 الموسيقى</button>
 </div>
 
 <div class="controls">
-    <button id="left">⬅️</button>
-    <button id="right">➡️</button>
+  <button id="leftBtn">⬅</button>
+  <button id="rightBtn">➡</button>
 </div>
 
-<p>الكمبيوتر: الأسهم أو A و D</p>
-<p>الموبايل: استخدم أزرار الحركة</p>
+<footer>COSMIC DASH © 2026</footer>
 
 <script>
-
-// عناصر اللعبة
-
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const scoreText = document.getElementById("score");
 const bestText = document.getElementById("best");
-const message = document.getElementById("message");
-const shapeName = document.getElementById("shapeName");
-const musicButton = document.getElementById("musicButton");
-const levelName = document.getElementById("levelName");
-
-let player;
-let obstacles = [];
-let stars = [];
 
 let score = 0;
-let frame = 0;
-let spawnCounter = 0;
-
-let running = false;
-let leftPressed = false;
-let rightPressed = false;
-let animation = null;
-
-// أفضل نتيجة
-
-let best = Number(localStorage.getItem("neonBest")) || 0;
+let best = Number(localStorage.getItem("cosmicBest")) || 0;
 bestText.textContent = best;
 
-// مستويات الصعوبة
+let playing = false;
+let gameOver = false;
 
-const difficulties = {
-
-    easy: {
-        name: "سهل",
-        speed: 2.5,
-        spawn: 85
-    },
-
-    medium: {
-        name: "متوسط",
-        speed: 4,
-        spawn: 60
-    },
-
-    hard: {
-        name: "صعب",
-        speed: 6,
-        spawn: 42
-    }
-
+let player = {
+  x: 190,
+  y: 490,
+  size: 30,
+  speed: 5
 };
 
-let currentDifficulty = "easy";
+let obstacles = [];
+let stars = [];
+let frame = 0;
+let keys = {};
+let selectedShape = "square";
 
-// فتح وإغلاق قائمة المستويات
+let audio;
+let musicTimer;
+let musicOn = true;
 
-function toggleLevels() {
-
-    document
-        .getElementById("levelOptions")
-        .classList.toggle("show");
-
-}
-
-// اختيار المستوى
-
-function chooseDifficulty(level) {
-
-    currentDifficulty = level;
-
-    levelName.textContent = difficulties[level].name;
-
-    document
-        .getElementById("levelOptions")
-        .classList.remove("show");
-
-    if (running) {
-
-        message.textContent =
-            "تم تغيير المستوى إلى " +
-            difficulties[level].name + "!";
-
-    }
-
-}
-
-// الشخصيات
-
-const shapes = [
-
-    {
-        name: "المربع الأزرق",
-        color: "#00e5ff",
-        type: "square"
-    },
-
-    {
-        name: "الدائرة البنفسجية",
-        color: "#bd5cff",
-        type: "circle"
-    },
-
-    {
-        name: "النجمة الذهبية",
-        color: "#ffd700",
-        type: "star"
-    },
-
-    {
-        name: "الماسة الخضراء",
-        color: "#00ff99",
-        type: "diamond"
-    }
-
-];
-
-let selectedShape = 0;
-
-// النجوم
-
+// إنشاء النجوم
 for (let i = 0; i < 65; i++) {
-
-    stars.push({
-
-        x: Math.random() * 500,
-        y: Math.random() * 500,
-        size: Math.random() * 2 + 0.5,
-        speed: Math.random() * 0.7 + 0.2
-
-    });
-
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2 + 0.5,
+    speed: Math.random() * 1.5 + 0.3
+  });
 }
 
 // الصوت والموسيقى
-
-let audioContext = null;
-let musicTimer = null;
-let musicEnabled = true;
-let noteIndex = 0;
-
-const melody = [
-
-    261.63, 329.63, 392, 329.63,
-    293.66, 349.23, 440, 349.23,
-    261.63, 329.63, 392, 523.25,
-    440, 392, 329.63, 293.66
-
-];
-
 function initAudio() {
-
-    if (!audioContext) {
-
-        audioContext =
-            new (window.AudioContext ||
-            window.webkitAudioContext)();
-
-    }
-
-    if (audioContext.state === "suspended") {
-        audioContext.resume();
-    }
-
+  if (!audio) {
+    audio = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audio.state === "suspended") audio.resume();
 }
 
-function playTone(freq, duration, volume, type = "sine") {
+function playTone(freq, duration, type = "sine", volume = 0.04) {
+  if (!audio) return;
 
-    if (!audioContext) return;
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
 
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.value = volume;
 
-    osc.type = type;
-    osc.frequency.value = freq;
+  osc.connect(gain);
+  gain.connect(audio.destination);
 
-    gain.gain.setValueAtTime(
-        volume,
-        audioContext.currentTime
-    );
+  osc.start();
+  gain.gain.exponentialRampToValueAtTime(
+    0.001,
+    audio.currentTime + duration
+  );
 
-    gain.gain.exponentialRampToValueAtTime(
-        0.001,
-        audioContext.currentTime + duration
-    );
-
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-
-    osc.start();
-    osc.stop(audioContext.currentTime + duration);
-
+  osc.stop(audio.currentTime + duration);
 }
 
 function startMusic() {
+  stopMusic();
+  if (!musicOn) return;
 
-    if (!musicEnabled || musicTimer) return;
+  const notes = [262, 330, 392, 330, 294, 349, 440, 349];
+  let i = 0;
 
-    musicTimer = setInterval(() => {
-
-        if (!running || !musicEnabled) return;
-
-        playTone(
-            melody[noteIndex % melody.length],
-            0.3,
-            0.025
-        );
-
-        noteIndex++;
-
-    }, 320);
-
+  musicTimer = setInterval(() => {
+    if (playing && musicOn) {
+      playTone(notes[i % notes.length], 0.18, "triangle", 0.018);
+      i++;
+    }
+  }, 260);
 }
 
 function stopMusic() {
-
-    clearInterval(musicTimer);
-    musicTimer = null;
-
+  if (musicTimer) clearInterval(musicTimer);
 }
 
 function toggleMusic() {
+  musicOn = !musicOn;
+  document.getElementById("musicButton").textContent =
+    musicOn ? "🔊 الموسيقى" : "🔇 الموسيقى";
 
-    musicEnabled = !musicEnabled;
-
-    musicButton.textContent = musicEnabled
-        ? "🔊 إيقاف الموسيقى"
-        : "🔇 تشغيل الموسيقى";
-
-    if (musicEnabled) {
-
-        initAudio();
-
-        if (running) startMusic();
-
-    } else {
-
-        stopMusic();
-
-    }
-
+  if (musicOn && playing) startMusic();
+  else stopMusic();
 }
 
 function deathSound() {
-
-    initAudio();
-
-    playTone(350, 0.3, 0.12, "sawtooth");
-
-    setTimeout(() => {
-        playTone(220, 0.5, 0.12, "triangle");
-    }, 180);
-
-    setTimeout(() => {
-        playTone(120, 0.7, 0.13, "sawtooth");
-    }, 400);
-
+  playTone(180, 0.35, "sawtooth", 0.07);
+  setTimeout(() => playTone(100, 0.5, "sawtooth", 0.06), 180);
 }
 
-// تغيير الشخصية
+// اختيار شكل اللاعب
+function chooseShape(shape, button) {
+  selectedShape = shape;
 
-function changeShape() {
+  document.querySelectorAll(".shapes button").forEach(b => {
+    b.classList.remove("selected");
+  });
 
-    if (running) return;
-
-    selectedShape = (selectedShape + 1) % shapes.length;
-
-    shapeName.textContent = shapes[selectedShape].name;
-
-    drawPreview();
-
+  button.classList.add("selected");
+  draw();
 }
 
-// رسم الخلفية
-
+// الخلفية
 function drawBackground() {
+  const gradient = ctx.createLinearGradient(0, 0, 0, 560);
+  gradient.addColorStop(0, "#10163c");
+  gradient.addColorStop(1, "#030614");
 
-    const bg = ctx.createLinearGradient(
-        0, 0, 0, 500
-    );
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 420, 560);
 
-    bg.addColorStop(0, "#080d27");
-    bg.addColorStop(0.5, "#14244b");
-    bg.addColorStop(1, "#07101e");
-
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 500, 500);
-
-    // النجوم
-
-    for (const star of stars) {
-
-        star.y += star.speed;
-
-        if (star.y > 500) {
-
-            star.y = 0;
-            star.x = Math.random() * 500;
-
-        }
-
-        ctx.fillStyle = "rgba(255,255,255,0.75)";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            star.x,
-            star.y,
-            star.size,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-
-    }
-
-    // خطوط النيون
-
-    ctx.strokeStyle = "rgba(0,229,255,0.3)";
-    ctx.lineWidth = 2;
+  // النجوم
+  stars.forEach(star => {
+    ctx.fillStyle = "white";
+    ctx.globalAlpha = 0.35 + Math.random() * 0.5;
 
     ctx.beginPath();
+    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    ctx.fill();
 
-    ctx.moveTo(8, 0);
-    ctx.lineTo(8, 500);
+    if (playing) {
+      star.y += star.speed;
 
-    ctx.moveTo(492, 0);
-    ctx.lineTo(492, 500);
+      if (star.y > 560) {
+        star.y = 0;
+        star.x = Math.random() * 420;
+      }
+    }
+  });
 
-    ctx.stroke();
+  ctx.globalAlpha = 1;
 
+  // خطوط جانبية
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = "#00eaff";
+  ctx.strokeStyle = "#00eaff";
+  ctx.lineWidth = 3;
+
+  ctx.beginPath();
+  ctx.moveTo(5, 0);
+  ctx.lineTo(5, 560);
+  ctx.moveTo(415, 0);
+  ctx.lineTo(415, 560);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
 }
 
-// رسم النجمة
+// رسم اللاعب
+function drawPlayer() {
+  ctx.save();
 
-function drawStar(x, y, size) {
+  ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
 
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#00eaff";
+  ctx.fillStyle = "#00eaff";
+
+  if (selectedShape === "square") {
+    ctx.fillRect(-15, -15, 30, 30);
+  }
+
+  if (selectedShape === "circle") {
+    ctx.beginPath();
+    ctx.arc(0, 0, 15, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (selectedShape === "diamond") {
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-12, -12, 24, 24);
+  }
+
+  if (selectedShape === "star") {
     ctx.beginPath();
 
     for (let i = 0; i < 10; i++) {
+      const radius = i % 2 === 0 ? 17 : 8;
+      const angle = i * Math.PI / 5 - Math.PI / 2;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
 
-        const radius =
-            i % 2 === 0 ? size : size / 2;
-
-        const angle =
-            i * Math.PI / 5 - Math.PI / 2;
-
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-
-        if (i === 0) {
-            ctx.moveTo(px, py);
-        } else {
-            ctx.lineTo(px, py);
-        }
-
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
 
     ctx.closePath();
     ctx.fill();
+  }
 
-}
-
-// رسم اللاعب
-
-function drawPlayer() {
-
-    const shape = shapes[selectedShape];
-
-    ctx.fillStyle = shape.color;
-    ctx.shadowColor = shape.color;
-    ctx.shadowBlur = 18;
-
-    const x = player.x;
-    const y = player.y;
-
-    if (shape.type === "square") {
-
-        ctx.fillRect(x, y, 50, 50);
-
-    }
-
-    if (shape.type === "circle") {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            x + 25,
-            y + 25,
-            25,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-
-    }
-
-    if (shape.type === "star") {
-
-        drawStar(x + 25, y + 25, 27);
-
-    }
-
-    if (shape.type === "diamond") {
-
-        ctx.beginPath();
-
-        ctx.moveTo(x + 25, y);
-        ctx.lineTo(x + 50, y + 25);
-        ctx.lineTo(x + 25, y + 50);
-        ctx.lineTo(x, y + 25);
-
-        ctx.closePath();
-        ctx.fill();
-
-    }
-
-    ctx.shadowBlur = 0;
-
-}
-
-// معاينة الشخصية
-
-function drawPreview() {
-
-    drawBackground();
-
-    player = {
-        x: 225,
-        y: 225,
-        width: 50,
-        height: 50
-    };
-
-    drawPlayer();
-
-}
-
-// إنشاء العقبات
-
-function createObstacle() {
-
-    obstacles.push({
-
-        x: Math.random() * 455,
-        y: -40,
-        width: 40,
-        height: 40
-
-    });
-
+  ctx.restore();
 }
 
 // رسم العقبات
-
 function drawObstacles() {
+  obstacles.forEach(o => {
+    ctx.save();
 
-    ctx.fillStyle = "#ff365e";
-    ctx.shadowColor = "#ff365e";
     ctx.shadowBlur = 14;
+    ctx.shadowColor = "#ff245f";
+    ctx.fillStyle = "#ff245f";
 
-    for (const o of obstacles) {
+    ctx.fillRect(o.x, o.y, o.width, o.height);
 
-        o.y += difficulties[currentDifficulty].speed;
+    ctx.restore();
+  });
+}
 
-        ctx.fillRect(
-            o.x,
-            o.y,
-            o.width,
-            o.height
-        );
+// إنشاء العقبات
+function createObstacle() {
+  const width = 35 + Math.random() * 35;
 
-    }
-
-    ctx.shadowBlur = 0;
-
+  obstacles.push({
+    x: 15 + Math.random() * (390 - width),
+    y: -35,
+    width: width,
+    height: 25,
+    speed: 3 + Math.random() * 1.5,
+    counted: false
+  });
 }
 
 // التصادم
-
 function collision(a, b) {
-
-    return a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y;
-
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
 }
-
-// التحكم بالكيبورد
-
-document.addEventListener("keydown", e => {
-
-    if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
-        e.preventDefault();
-    }
-
-    if (
-        e.key === "ArrowLeft" ||
-        e.key.toLowerCase() === "a"
-    ) {
-        leftPressed = true;
-    }
-
-    if (
-        e.key === "ArrowRight" ||
-        e.key.toLowerCase() === "d"
-    ) {
-        rightPressed = true;
-    }
-
-});
-
-document.addEventListener("keyup", e => {
-
-    if (
-        e.key === "ArrowLeft" ||
-        e.key.toLowerCase() === "a"
-    ) {
-        leftPressed = false;
-    }
-
-    if (
-        e.key === "ArrowRight" ||
-        e.key.toLowerCase() === "d"
-    ) {
-        rightPressed = false;
-    }
-
-});
-
-// أزرار الموبايل
-
-function holdButton(id, direction) {
-
-    const btn = document.getElementById(id);
-
-    btn.addEventListener("pointerdown", e => {
-
-        e.preventDefault();
-
-        if (direction === "left") {
-            leftPressed = true;
-        } else {
-            rightPressed = true;
-        }
-
-    });
-
-    function release() {
-
-        if (direction === "left") {
-            leftPressed = false;
-        } else {
-            rightPressed = false;
-        }
-
-    }
-
-    btn.addEventListener("pointerup", release);
-    btn.addEventListener("pointerleave", release);
-    btn.addEventListener("pointercancel", release);
-
-}
-
-holdButton("left", "left");
-holdButton("right", "right");
 
 // نهاية اللعبة
-
 function endGame() {
+  playing = false;
+  gameOver = true;
 
-    running = false;
+  stopMusic();
+  deathSound();
 
-    stopMusic();
-    deathSound();
+  if (score > best) {
+    best = score;
+    localStorage.setItem("cosmicBest", best);
+    bestText.textContent = best;
+  }
 
-    message.textContent = "💀 انتهت اللعبة!";
+  draw();
 
-    if (score > best) {
+  ctx.fillStyle = "rgba(0,0,0,0.75)";
+  ctx.fillRect(0, 0, 420, 560);
 
-        best = score;
+  ctx.textAlign = "center";
 
-        localStorage.setItem("neonBest", best);
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = "#ff245f";
+  ctx.fillStyle = "#ff245f";
+  ctx.font = "bold 38px Arial";
+  ctx.fillText("GAME OVER", 210, 245);
 
-        bestText.textContent = best;
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "white";
+  ctx.font = "22px Arial";
+  ctx.fillText("Score: " + score, 210, 295);
 
-        message.textContent = "🏆 رقم قياسي جديد!";
-
-    }
-
-    drawBackground();
-    drawPlayer();
-
-    ctx.fillStyle = "rgba(0,0,0,0.7)";
-    ctx.fillRect(0, 0, 500, 500);
-
-    ctx.textAlign = "center";
-
-    ctx.fillStyle = "#ff365e";
-    ctx.font = "bold 38px Arial";
-
-    ctx.fillText("GAME OVER", 250, 220);
-
-    ctx.fillStyle = "white";
-    ctx.font = "22px Arial";
-
-    ctx.fillText(
-        "Your Score: " + score,
-        250,
-        270
-    );
-
-    ctx.fillText(
-        "Press START to play again",
-        250,
-        315
-    );
-
-}
-
-// تحديث اللعبة
-
-function update() {
-
-    if (!running) return;
-
-    drawBackground();
-
-    if (leftPressed) {
-        player.x -= 7;
-    }
-
-    if (rightPressed) {
-        player.x += 7;
-    }
-
-    player.x = Math.max(
-        0,
-        Math.min(450, player.x)
-    );
-
-    drawPlayer();
-
-    frame++;
-    spawnCounter++;
-
-    // ظهور العقبات حسب المستوى
-
-    if (
-        spawnCounter >=
-        difficulties[currentDifficulty].spawn
-    ) {
-
-        createObstacle();
-        spawnCounter = 0;
-
-    }
-
-    drawObstacles();
-
-    // نقطة واحدة لكل عقبة يتم تفاديها
-
-    obstacles = obstacles.filter(o => {
-
-        if (o.y >= 500) {
-
-            score++;
-
-            scoreText.textContent = score;
-
-            return false;
-
-        }
-
-        return true;
-
-    });
-
-    // فحص التصادم
-
-    for (const o of obstacles) {
-
-        if (collision(player, o)) {
-
-            endGame();
-            return;
-
-        }
-
-    }
-
-    animation = requestAnimationFrame(update);
-
+  ctx.font = "17px Arial";
+  ctx.fillText("Press START to play again", 210, 345);
 }
 
 // بدء اللعبة
-
 function startGame() {
+  initAudio();
 
-    initAudio();
+  score = 0;
+  scoreText.textContent = score;
 
-    cancelAnimationFrame(animation);
+  player.x = 190;
+  obstacles = [];
+  frame = 0;
 
-    stopMusic();
+  playing = true;
+  gameOver = false;
 
-    player = {
-
-        x: 225,
-        y: 430,
-        width: 50,
-        height: 50
-
-    };
-
-    obstacles = [];
-
-    score = 0;
-    frame = 0;
-    spawnCounter = 0;
-
-    leftPressed = false;
-    rightPressed = false;
-
-    running = true;
-
-    scoreText.textContent = "0";
-
-    message.textContent =
-        "🔥 حاول تحطم رقمك القياسي!";
-
-    update();
-
-    startMusic();
-
+  startMusic();
+  draw();
 }
 
-// البداية
+// تحديث اللعبة
+function update() {
+  if (!playing) return;
 
-player = {
-    x: 225,
-    y: 225,
-    width: 50,
-    height: 50
-};
+  frame++;
 
-drawPreview();
+  if (keys["ArrowLeft"] || keys["a"] || keys["A"]) {
+    player.x -= player.speed;
+  }
 
+  if (keys["ArrowRight"] || keys["d"] || keys["D"]) {
+    player.x += player.speed;
+  }
+
+  player.x = Math.max(12, Math.min(378, player.x));
+
+  if (frame % 55 === 0) {
+    createObstacle();
+  }
+
+  obstacles.forEach(o => {
+    o.y += o.speed;
+
+    if (!o.counted && o.y > player.y + player.size) {
+      o.counted = true;
+      score++;
+      scoreText.textContent = score;
+    }
+
+    if (collision(player, o)) {
+      endGame();
+    }
+  });
+
+  obstacles = obstacles.filter(o => o.y < 580);
+
+  draw();
+}
+
+// الرسم
+function draw() {
+  drawBackground();
+  drawPlayer();
+  drawObstacles();
+}
+
+// حلقة اللعبة
+function loop() {
+  update();
+  requestAnimationFrame(loop);
+}
+
+// التحكم بالكيبورد
+document.addEventListener("keydown", e => {
+  keys[e.key] = true;
+
+  if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("keyup", e => {
+  keys[e.key] = false;
+});
+
+// أزرار الموبايل
+function holdButton(id, key) {
+  const button = document.getElementById(id);
+
+  button.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+
+  button.addEventListener("pointerup", () => {
+    keys[key] = false;
+  });
+
+  button.addEventListener("pointerleave", () => {
+    keys[key] = false;
+  });
+
+  button.addEventListener("pointercancel", () => {
+    keys[key] = false;
+  });
+}
+
+holdButton("leftBtn", "ArrowLeft");
+holdButton("rightBtn", "ArrowRight");
+
+draw();
+loop();
 </script>
 
 </body>
