@@ -4,7 +4,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>NEON ESCAPE</title>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="./manifest.json">
+
+<!-- ألوان التطبيق -->
+<meta name="theme-color" content="#030611">
+<meta name="background-color" content="#030611">
+
+<!-- إعدادات الموبايل -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NEON ESCAPE">
 
 <style>
 *{box-sizing:border-box}
@@ -419,8 +432,6 @@ function drawBackground(){
  ctx.fillStyle=bg;
  ctx.fillRect(0,0,500,500);
 
- // السدم الملونة
-
  const nebulae=[
   {x:100,y:120,r:160,c:"rgba(90,30,180,0.20)"},
   {x:400,y:320,r:180,c:"rgba(0,120,190,0.16)"},
@@ -470,8 +481,6 @@ function drawBackground(){
   ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
   ctx.fill();
 
-  // ظلال الكواكب
-
   ctx.fillStyle="rgba(0,0,0,0.3)";
   ctx.beginPath();
   ctx.arc(p.x+p.r*0.3,p.y+p.r*0.15,p.r*0.8,0,Math.PI*2);
@@ -507,8 +516,6 @@ function drawBackground(){
   ctx.arc(star.x,star.y,star.size,0,Math.PI*2);
   ctx.fill();
  }
-
- // خط حدود المسار
 
  ctx.strokeStyle="rgba(60,220,255,0.25)";
  ctx.lineWidth=2;
@@ -569,8 +576,6 @@ function drawShip(x,y){
  ctx.save();
  ctx.translate(x+25,y+25);
 
- // اللهب الخلفي
-
  const flame=ctx.createLinearGradient(0,15,0,42);
  flame.addColorStop(0,"#fff8a0");
  flame.addColorStop(0.4,"#ff9d35");
@@ -586,8 +591,6 @@ function drawShip(x,y){
  ctx.lineTo(9,12);
  ctx.closePath();
  ctx.fill();
-
- // جسم المركبة
 
  const body=ctx.createLinearGradient(-20,-20,20,20);
  body.addColorStop(0,"#e6fbff");
@@ -608,8 +611,6 @@ function drawShip(x,y){
  ctx.closePath();
  ctx.fill();
 
- // الزجاج الأمامي
-
  const glass=ctx.createRadialGradient(-3,-12,1,0,-9,14);
  glass.addColorStop(0,"#d9ffff");
  glass.addColorStop(0.3,"#37d9ff");
@@ -619,8 +620,6 @@ function drawShip(x,y){
  ctx.beginPath();
  ctx.ellipse(0,-5,8,12,0,0,Math.PI*2);
  ctx.fill();
-
- // الأجنحة
 
  ctx.fillStyle="#477d9e";
  ctx.beginPath();
@@ -646,8 +645,6 @@ function drawRobot(x,y){
  ctx.save();
  ctx.translate(x+25,y+25);
 
- // أضواء جانبية
-
  ctx.fillStyle="#bd8cff";
  ctx.shadowColor="#bd8cff";
  ctx.shadowBlur=15;
@@ -656,8 +653,6 @@ function drawRobot(x,y){
  ctx.arc(-21,0,5,0,Math.PI*2);
  ctx.arc(21,0,5,0,Math.PI*2);
  ctx.fill();
-
- // الجسم المعدني
 
  const metal=ctx.createLinearGradient(-20,-15,20,20);
  metal.addColorStop(0,"#f1eaff");
@@ -669,14 +664,10 @@ function drawRobot(x,y){
  ctx.roundRect(-19,-18,38,39,11);
  ctx.fill();
 
- // الرأس
-
  ctx.fillStyle="#c5a9f4";
  ctx.beginPath();
  ctx.roundRect(-16,-29,32,25,9);
  ctx.fill();
-
- // العينان
 
  ctx.fillStyle="#38f6ff";
  ctx.shadowColor="#38f6ff";
@@ -687,15 +678,11 @@ function drawRobot(x,y){
  ctx.arc(7,-17,4,0,Math.PI*2);
  ctx.fill();
 
- // الصدر
-
  ctx.fillStyle="#20294f";
  ctx.fillRect(-10,0,20,13);
 
  ctx.fillStyle="#00e5ff";
  ctx.fillRect(-5,4,10,5);
-
- // الأطراف
 
  ctx.strokeStyle="#c5a9f4";
  ctx.lineWidth=5;
@@ -734,8 +721,6 @@ function drawOrb(x,y){
  ctx.beginPath();
  ctx.arc(x+25,y+25,23+pulse,0,Math.PI*2);
  ctx.fill();
-
- // حلقات الطاقة
 
  ctx.strokeStyle="rgba(180,255,230,0.9)";
  ctx.lineWidth=2;
