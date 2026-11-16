@@ -10,59 +10,77 @@
 *{box-sizing:border-box}
 
 body{
- margin:0;padding:12px;background:#080b19;
- color:white;font-family:Arial,sans-serif;text-align:center
+ margin:0;
+ padding:12px;
+ background:#030611;
+ color:white;
+ font-family:Arial,sans-serif;
+ text-align:center;
 }
 
 h1{
- color:#00e5ff;font-size:32px;
- text-shadow:0 0 18px #00e5ff
+ color:#54eaff;
+ font-size:32px;
+ text-shadow:0 0 20px #00d9ff;
 }
 
 .stats{
- display:flex;justify-content:center;gap:8px;
- flex-wrap:wrap;margin:12px
+ display:flex;
+ justify-content:center;
+ gap:8px;
+ flex-wrap:wrap;
+ margin:12px;
 }
 
 .stat{
- background:#171e38;padding:11px 14px;
- border-radius:12px;border:1px solid #394d78
+ background:#111b32;
+ padding:11px 14px;
+ border-radius:12px;
+ border:1px solid #34577e;
 }
 
 .game-wrapper{
  position:relative;
  width:min(94vw,500px);
  margin:15px auto;
- border:2px solid #00e5ff;
+ border:2px solid #35dfff;
  border-radius:15px;
- box-shadow:0 0 25px #00e5ff55;
+ box-shadow:0 0 30px #00bfff66;
  overflow:hidden;
 }
 
 canvas{
- width:100%;height:auto;display:block;
- background:#080d27
+ width:100%;
+ height:auto;
+ display:block;
+ background:#030611;
 }
 
 button{
- padding:12px 16px;margin:5px;
- background:#152b53;color:white;
- border:1px solid #00e5ff;
- border-radius:10px;font-size:15px;
- cursor:pointer;touch-action:manipulation
+ padding:12px 16px;
+ margin:5px;
+ background:#142b4c;
+ color:white;
+ border:1px solid #35dfff;
+ border-radius:10px;
+ font-size:15px;
+ cursor:pointer;
+ touch-action:manipulation;
 }
 
 button:active{background:#007fbd}
 
 .pause-button{
  position:absolute;
- top:10px;right:10px;
+ top:10px;
+ right:10px;
  z-index:5;
- width:48px;height:44px;
- padding:5px;margin:0;
+ width:48px;
+ height:44px;
+ padding:5px;
+ margin:0;
  font-size:21px;
- background:#152b53dd;
- box-shadow:0 0 12px #00e5ff88
+ background:#101d36dd;
 }
 
 .game-overlay{
@@ -73,8 +91,8 @@ button:active{background:#007fbd}
  align-items:center;
  justify-content:center;
  flex-direction:column;
- background:rgba(0,0,0,.82);
- padding:15px
+ background:rgba(0,0,0,.84);
+ padding:15px;
 }
 
 .game-overlay.show{display:flex}
@@ -83,12 +101,12 @@ button:active{background:#007fbd}
  font-size:36px;
  color:#ff365e;
  text-shadow:0 0 18px #ff365e;
- margin:10px
+ margin:10px;
 }
 
 .game-overlay p{
  font-size:19px;
- margin:8px
+ margin:8px;
 }
 
 .overlay-button{
@@ -97,33 +115,45 @@ button:active{background:#007fbd}
  box-shadow:0 0 20px #00e5ff88;
  font-size:19px;
  padding:14px 25px;
- margin-top:15px
+ margin-top:15px;
 }
 
-.level-menu{position:relative;display:inline-block}
+.level-menu{
+ position:relative;
+ display:inline-block;
+}
 
 .level-options{
- display:none;position:absolute;
- top:100%;left:50%;
+ display:none;
+ position:absolute;
+ top:100%;
+ left:50%;
  transform:translateX(-50%);
- background:#171e38;
+ background:#111b32;
  border:1px solid #00e5ff;
- border-radius:12px;padding:8px;
- width:150px;z-index:10
+ border-radius:12px;
+ padding:8px;
+ width:150px;
+ z-index:10;
 }
 
 .level-options.show{display:block}
 .level-options button{display:block;width:100%}
 
 .controls{
- display:flex;justify-content:center;
- gap:35px;margin:15px
+ display:flex;
+ justify-content:center;
+ gap:35px;
+ margin:15px;
 }
 
-.controls button{width:110px;font-size:28px}
+.controls button{
+ width:110px;
+ font-size:28px;
+}
 
-#message{color:#00e5ff;font-size:19px}
-#shapeName{color:#bd5cff}
+#message{color:#54eaff;font-size:19px}
+#shapeName{color:#bd8cff}
 #shieldTimer{color:#00e5ff}
 #speedTimer{color:#ffd700}
 </style>
@@ -132,7 +162,7 @@ button:active{background:#007fbd}
 <body>
 
 <h1>🌌 NEON ESCAPE</h1>
-<p>تجنب العقبات واجمع العملات وحطم رقمك القياسي!</p>
+<p>تجنب العقبات واجمع العملات في الفضاء!</p>
 
 <div class="stats">
  <div class="stat">⭐ النقاط: <span id="score">0</span></div>
@@ -160,7 +190,6 @@ button:active{background:#007fbd}
 
  <canvas id="game" width="500" height="500"></canvas>
 
- <!-- شاشة نهاية اللعبة -->
  <div class="game-overlay" id="gameOverScreen">
   <h2>GAME OVER</h2>
   <p>⭐ نتيجتك: <span id="finalScore">0</span></p>
@@ -171,7 +200,6 @@ button:active{background:#007fbd}
   </button>
  </div>
 
- <!-- شاشة الإيقاف المؤقت -->
  <div class="game-overlay" id="pauseScreen">
   <h2 style="color:#00e5ff">PAUSED</h2>
   <p>⏸️ اللعبة متوقفة مؤقتاً</p>
@@ -182,12 +210,12 @@ button:active{background:#007fbd}
 
 </div>
 
-<h3 id="message">اختر شخصيتك وابدأ اللعب!</h3>
+<h3 id="message">اختر مركبتك وابدأ اللعب!</h3>
 
-<p>الشخصية: <span id="shapeName">المربع الأزرق</span></p>
+<p>الشخصية: <span id="shapeName">المركبة الفضائية</span></p>
 
 <div>
- <button onclick="changeShape()">🎨 تغيير الشخصية</button>
+ <button onclick="changeShape()">🚀 تغيير الشخصية</button>
  <button onclick="toggleMusic()" id="musicButton">🔊 إيقاف الموسيقى</button>
 </div>
 
@@ -216,6 +244,7 @@ let shields=[];
 let coinsItems=[];
 let speedItems=[];
 let particles=[];
+let planets=[];
 
 let score=0;
 let coins=0;
@@ -239,6 +268,8 @@ let shake=0;
 let best=Number(localStorage.getItem("neonBest"))||0;
 $("best").textContent=best;
 
+// المستويات
+
 const difficulties={
  easy:{name:"سهل",speed:2.5,spawn:85},
  medium:{name:"متوسط",speed:4,spawn:60},
@@ -247,25 +278,38 @@ const difficulties={
 
 let currentDifficulty="easy";
 
+// الشخصيات الجديدة
+
 const shapes=[
- {name:"المربع الأزرق",color:"#00e5ff",type:"square"},
- {name:"الدائرة البنفسجية",color:"#bd5cff",type:"circle"},
- {name:"النجمة الذهبية",color:"#ffd700",type:"star"},
- {name:"الماسة الخضراء",color:"#00ff99",type:"diamond"}
+ {name:"المركبة الفضائية",type:"ship",color:"#00dfff"},
+ {name:"الروبوت الطائر",type:"robot",color:"#bd8cff"},
+ {name:"كرة الطاقة",type:"orb",color:"#00ffae"},
+ {name:"المذنب الناري",type:"comet",color:"#ffae35"}
 ];
 
 let selectedShape=0;
 
-for(let i=0;i<85;i++){
+// نجوم الخلفية
+
+for(let i=0;i<130;i++){
  stars.push({
   x:Math.random()*500,
   y:Math.random()*500,
-  size:Math.random()*2+0.5,
-  speed:Math.random()*0.8+0.2
+  size:Math.random()*1.8+0.3,
+  speed:Math.random()*0.8+0.15,
+  alpha:Math.random()*0.7+0.2
  });
 }
 
-// الصوت
+// كواكب الخلفية
+
+planets=[
+ {x:390,y:120,r:58,color:"#743b9f",ring:true},
+ {x:80,y:335,r:27,color:"#b66b45",ring:false},
+ {x:300,y:390,r:18,color:"#327a9c",ring:false}
+];
+
+// الصوت والموسيقى
 
 let audioContext=null;
 let musicTimer=null;
@@ -353,7 +397,7 @@ function chooseDifficulty(level){
  $("message").textContent="المستوى الحالي: "+difficulties[level].name;
 }
 
-// الشخصيات
+// تغيير الشخصية
 
 function changeShape(){
  if(running)return;
@@ -363,16 +407,88 @@ function changeShape(){
  drawPreview();
 }
 
-// الخلفية
+// الخلفية الفضائية
 
 function drawBackground(){
  const bg=ctx.createLinearGradient(0,0,0,500);
- bg.addColorStop(0,"#080d27");
- bg.addColorStop(0.5,"#14244b");
- bg.addColorStop(1,"#07101e");
+
+ bg.addColorStop(0,"#020511");
+ bg.addColorStop(0.45,"#111a3c");
+ bg.addColorStop(1,"#030914");
 
  ctx.fillStyle=bg;
  ctx.fillRect(0,0,500,500);
+
+ // السدم الملونة
+
+ const nebulae=[
+  {x:100,y:120,r:160,c:"rgba(90,30,180,0.20)"},
+  {x:400,y:320,r:180,c:"rgba(0,120,190,0.16)"},
+  {x:220,y:460,r:130,c:"rgba(130,30,100,0.13)"}
+ ];
+
+ for(const n of nebulae){
+  const g=ctx.createRadialGradient(
+   n.x,n.y,5,n.x,n.y,n.r
+  );
+
+  g.addColorStop(0,n.c);
+  g.addColorStop(1,"rgba(0,0,0,0)");
+
+  ctx.fillStyle=g;
+  ctx.fillRect(0,0,500,500);
+ }
+
+ // الكواكب
+
+ for(const p of planets){
+  ctx.save();
+
+  if(p.ring){
+   ctx.strokeStyle="rgba(190,130,255,0.55)";
+   ctx.lineWidth=9;
+   ctx.beginPath();
+   ctx.ellipse(p.x,p.y,p.r+22,p.r*0.35,-0.3,0,Math.PI*2);
+   ctx.stroke();
+  }
+
+  const g=ctx.createRadialGradient(
+   p.x-p.r*0.35,p.y-p.r*0.4,2,
+   p.x,p.y,p.r*1.2
+  );
+
+  g.addColorStop(0,"#ffffff");
+  g.addColorStop(0.12,p.color);
+  g.addColorStop(0.65,p.color);
+  g.addColorStop(1,"#080b20");
+
+  ctx.fillStyle=g;
+  ctx.shadowColor=p.color;
+  ctx.shadowBlur=20;
+
+  ctx.beginPath();
+  ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+  ctx.fill();
+
+  // ظلال الكواكب
+
+  ctx.fillStyle="rgba(0,0,0,0.3)";
+  ctx.beginPath();
+  ctx.arc(p.x+p.r*0.3,p.y+p.r*0.15,p.r*0.8,0,Math.PI*2);
+  ctx.fill();
+
+  if(p.ring){
+   ctx.strokeStyle="rgba(200,160,255,0.8)";
+   ctx.lineWidth=3;
+   ctx.beginPath();
+   ctx.ellipse(p.x,p.y,p.r+22,p.r*0.35,-0.3,0,Math.PI*2);
+   ctx.stroke();
+  }
+
+  ctx.restore();
+ }
+
+ // النجوم
 
  for(const star of stars){
   if(running&&!paused){
@@ -384,35 +500,27 @@ function drawBackground(){
    }
   }
 
-  ctx.fillStyle="rgba(255,255,255,0.8)";
+  const twinkle=0.65+Math.sin(Date.now()/350+star.x)*0.3;
+
+  ctx.fillStyle="rgba(255,255,255,"+(star.alpha*twinkle)+")";
   ctx.beginPath();
   ctx.arc(star.x,star.y,star.size,0,Math.PI*2);
   ctx.fill();
  }
 
- ctx.strokeStyle="rgba(0,229,255,0.3)";
+ // خط حدود المسار
+
+ ctx.strokeStyle="rgba(60,220,255,0.25)";
  ctx.lineWidth=2;
- ctx.strokeRect(8,0,484,500);
-}
-
-function drawStar(x,y,size){
  ctx.beginPath();
-
- for(let i=0;i<10;i++){
-  const r=i%2===0?size:size/2;
-  const a=i*Math.PI/5-Math.PI/2;
-  const px=x+Math.cos(a)*r;
-  const py=y+Math.sin(a)*r;
-
-  if(i===0)ctx.moveTo(px,py);
-  else ctx.lineTo(px,py);
- }
-
- ctx.closePath();
- ctx.fill();
+ ctx.moveTo(8,0);
+ ctx.lineTo(8,500);
+ ctx.moveTo(492,0);
+ ctx.lineTo(492,500);
+ ctx.stroke();
 }
 
-// المؤثرات
+// الجزيئات
 
 function createParticles(x,y,color,count=15){
  for(let i=0;i<count;i++){
@@ -455,43 +563,243 @@ function drawParticles(){
  ctx.shadowBlur=0;
 }
 
+// رسم المركبة الفضائية
+
+function drawShip(x,y){
+ ctx.save();
+ ctx.translate(x+25,y+25);
+
+ // اللهب الخلفي
+
+ const flame=ctx.createLinearGradient(0,15,0,42);
+ flame.addColorStop(0,"#fff8a0");
+ flame.addColorStop(0.4,"#ff9d35");
+ flame.addColorStop(1,"rgba(255,50,0,0)");
+
+ ctx.fillStyle=flame;
+ ctx.shadowColor="#ff8c35";
+ ctx.shadowBlur=18;
+
+ ctx.beginPath();
+ ctx.moveTo(-9,12);
+ ctx.lineTo(0,43+Math.sin(Date.now()/55)*5);
+ ctx.lineTo(9,12);
+ ctx.closePath();
+ ctx.fill();
+
+ // جسم المركبة
+
+ const body=ctx.createLinearGradient(-20,-20,20,20);
+ body.addColorStop(0,"#e6fbff");
+ body.addColorStop(0.35,"#53a8ca");
+ body.addColorStop(0.7,"#185178");
+ body.addColorStop(1,"#071c3c");
+
+ ctx.fillStyle=body;
+ ctx.shadowColor="#00dfff";
+ ctx.shadowBlur=18;
+
+ ctx.beginPath();
+ ctx.moveTo(0,-28);
+ ctx.lineTo(19,12);
+ ctx.lineTo(11,20);
+ ctx.lineTo(-11,20);
+ ctx.lineTo(-19,12);
+ ctx.closePath();
+ ctx.fill();
+
+ // الزجاج الأمامي
+
+ const glass=ctx.createRadialGradient(-3,-12,1,0,-9,14);
+ glass.addColorStop(0,"#d9ffff");
+ glass.addColorStop(0.3,"#37d9ff");
+ glass.addColorStop(1,"#123e75");
+
+ ctx.fillStyle=glass;
+ ctx.beginPath();
+ ctx.ellipse(0,-5,8,12,0,0,Math.PI*2);
+ ctx.fill();
+
+ // الأجنحة
+
+ ctx.fillStyle="#477d9e";
+ ctx.beginPath();
+ ctx.moveTo(-12,5);
+ ctx.lineTo(-25,17);
+ ctx.lineTo(-13,16);
+ ctx.closePath();
+ ctx.fill();
+
+ ctx.beginPath();
+ ctx.moveTo(12,5);
+ ctx.lineTo(25,17);
+ ctx.lineTo(13,16);
+ ctx.closePath();
+ ctx.fill();
+
+ ctx.restore();
+}
+
+// رسم الروبوت
+
+function drawRobot(x,y){
+ ctx.save();
+ ctx.translate(x+25,y+25);
+
+ // أضواء جانبية
+
+ ctx.fillStyle="#bd8cff";
+ ctx.shadowColor="#bd8cff";
+ ctx.shadowBlur=15;
+
+ ctx.beginPath();
+ ctx.arc(-21,0,5,0,Math.PI*2);
+ ctx.arc(21,0,5,0,Math.PI*2);
+ ctx.fill();
+
+ // الجسم المعدني
+
+ const metal=ctx.createLinearGradient(-20,-15,20,20);
+ metal.addColorStop(0,"#f1eaff");
+ metal.addColorStop(0.4,"#9470c9");
+ metal.addColorStop(1,"#32265f");
+
+ ctx.fillStyle=metal;
+ ctx.beginPath();
+ ctx.roundRect(-19,-18,38,39,11);
+ ctx.fill();
+
+ // الرأس
+
+ ctx.fillStyle="#c5a9f4";
+ ctx.beginPath();
+ ctx.roundRect(-16,-29,32,25,9);
+ ctx.fill();
+
+ // العينان
+
+ ctx.fillStyle="#38f6ff";
+ ctx.shadowColor="#38f6ff";
+ ctx.shadowBlur=12;
+
+ ctx.beginPath();
+ ctx.arc(-7,-17,4,0,Math.PI*2);
+ ctx.arc(7,-17,4,0,Math.PI*2);
+ ctx.fill();
+
+ // الصدر
+
+ ctx.fillStyle="#20294f";
+ ctx.fillRect(-10,0,20,13);
+
+ ctx.fillStyle="#00e5ff";
+ ctx.fillRect(-5,4,10,5);
+
+ // الأطراف
+
+ ctx.strokeStyle="#c5a9f4";
+ ctx.lineWidth=5;
+ ctx.beginPath();
+ ctx.moveTo(-15,2);
+ ctx.lineTo(-23,12);
+ ctx.moveTo(15,2);
+ ctx.lineTo(23,12);
+ ctx.stroke();
+
+ ctx.restore();
+}
+
+// كرة الطاقة
+
+function drawOrb(x,y){
+ ctx.save();
+
+ const pulse=2+Math.sin(Date.now()/100)*2;
+
+ const g=ctx.createRadialGradient(
+  x+16,y+12,2,
+  x+25,y+25,29+pulse
+ );
+
+ g.addColorStop(0,"#ffffff");
+ g.addColorStop(0.2,"#aaffea");
+ g.addColorStop(0.5,"#00ffaa");
+ g.addColorStop(0.8,"#007caa");
+ g.addColorStop(1,"rgba(0,20,50,0.1)");
+
+ ctx.fillStyle=g;
+ ctx.shadowColor="#00ffae";
+ ctx.shadowBlur=30;
+
+ ctx.beginPath();
+ ctx.arc(x+25,y+25,23+pulse,0,Math.PI*2);
+ ctx.fill();
+
+ // حلقات الطاقة
+
+ ctx.strokeStyle="rgba(180,255,230,0.9)";
+ ctx.lineWidth=2;
+
+ ctx.beginPath();
+ ctx.ellipse(x+25,y+25,34,12,Date.now()/700,0,Math.PI*2);
+ ctx.stroke();
+
+ ctx.beginPath();
+ ctx.ellipse(x+25,y+25,12,34,-Date.now()/700,0,Math.PI*2);
+ ctx.stroke();
+
+ ctx.restore();
+}
+
+// المذنب الناري
+
+function drawComet(x,y){
+ ctx.save();
+ ctx.translate(x+25,y+25);
+
+ const flame=ctx.createLinearGradient(-35,0,5,0);
+ flame.addColorStop(0,"rgba(255,50,0,0)");
+ flame.addColorStop(0.5,"#ff722b");
+ flame.addColorStop(1,"#fff4b0");
+
+ ctx.fillStyle=flame;
+ ctx.shadowColor="#ff722b";
+ ctx.shadowBlur=25;
+
+ ctx.beginPath();
+ ctx.moveTo(-43,0);
+ ctx.lineTo(-5,-12);
+ ctx.lineTo(8,0);
+ ctx.lineTo(-5,12);
+ ctx.closePath();
+ ctx.fill();
+
+ const g=ctx.createRadialGradient(-5,-6,2,0,0,24);
+ g.addColorStop(0,"#ffffff");
+ g.addColorStop(0.3,"#fff4a0");
+ g.addColorStop(0.65,"#ff8b32");
+ g.addColorStop(1,"#b92a16");
+
+ ctx.fillStyle=g;
+
+ ctx.beginPath();
+ ctx.arc(0,0,19,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.restore();
+}
+
 // اللاعب
 
 function drawPlayer(){
- const shape=shapes[selectedShape];
  const x=player.x;
  const y=player.y;
+ const type=shapes[selectedShape].type;
 
- ctx.save();
- ctx.fillStyle=shape.color;
- ctx.shadowColor=shape.color;
- ctx.shadowBlur=22;
-
- if(shape.type==="square"){
-  ctx.fillRect(x,y,50,50);
- }
-
- if(shape.type==="circle"){
-  ctx.beginPath();
-  ctx.arc(x+25,y+25,25,0,Math.PI*2);
-  ctx.fill();
- }
-
- if(shape.type==="star"){
-  drawStar(x+25,y+25,27);
- }
-
- if(shape.type==="diamond"){
-  ctx.beginPath();
-  ctx.moveTo(x+25,y);
-  ctx.lineTo(x+50,y+25);
-  ctx.lineTo(x+25,y+50);
-  ctx.lineTo(x,y+25);
-  ctx.closePath();
-  ctx.fill();
- }
-
- ctx.restore();
+ if(type==="ship")drawShip(x,y);
+ if(type==="robot")drawRobot(x,y);
+ if(type==="orb")drawOrb(x,y);
+ if(type==="comet")drawComet(x,y);
 
  if(shieldActive){
   ctx.save();
@@ -501,8 +809,15 @@ function drawPlayer(){
   ctx.shadowBlur=25;
 
   ctx.beginPath();
-  ctx.arc(x+25,y+25,37+Math.sin(Date.now()/100)*3,0,Math.PI*2);
+  ctx.arc(
+   x+25,y+25,
+   39+Math.sin(Date.now()/100)*3,
+   0,Math.PI*2
+  );
   ctx.stroke();
+
+  ctx.fillStyle="rgba(0,229,255,0.07)";
+  ctx.fill();
   ctx.restore();
  }
 
@@ -514,7 +829,7 @@ function drawPlayer(){
   ctx.shadowBlur=15;
 
   ctx.beginPath();
-  ctx.arc(x+25,y+25,33,0,Math.PI*2);
+  ctx.arc(x+25,y+25,45,0,Math.PI*2);
   ctx.stroke();
   ctx.restore();
  }
@@ -535,10 +850,24 @@ function createObstacle(){
 function drawObstacles(){
  for(const o of obstacles){
   ctx.save();
-  ctx.fillStyle=o.color;
+
   ctx.shadowColor=o.color;
   ctx.shadowBlur=18;
-  ctx.fillRect(o.x,o.y,o.width,o.height);
+
+  const g=ctx.createLinearGradient(o.x,o.y,o.x+40,o.y+40);
+  g.addColorStop(0,"#fff0f0");
+  g.addColorStop(0.2,o.color);
+  g.addColorStop(1,"#70152e");
+
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.roundRect(o.x,o.y,40,40,7);
+  ctx.fill();
+
+  ctx.strokeStyle="#ffaaaa";
+  ctx.lineWidth=1;
+  ctx.stroke();
+
   ctx.restore();
  }
 }
@@ -546,24 +875,15 @@ function drawObstacles(){
 // المكافآت
 
 function createShield(){
- shields.push({
-  x:15+Math.random()*430,
-  y:-40,width:36,height:36
- });
+ shields.push({x:15+Math.random()*430,y:-40,width:36,height:36});
 }
 
 function createCoin(){
- coinsItems.push({
-  x:25+Math.random()*430,
-  y:-30,width:25,height:25
- });
+ coinsItems.push({x:25+Math.random()*430,y:-30,width:25,height:25});
 }
 
 function createSpeed(){
- speedItems.push({
-  x:25+Math.random()*430,
-  y:-35,width:32,height:32
- });
+ speedItems.push({x:25+Math.random()*430,y:-35,width:32,height:32});
 }
 
 function drawRewards(){
@@ -584,12 +904,22 @@ function drawRewards(){
   ctx.lineTo(-14,-9);
   ctx.closePath();
   ctx.stroke();
+
+  ctx.fillStyle="rgba(0,229,255,.25)";
+  ctx.fill();
+
   ctx.restore();
  }
 
  for(const c of coinsItems){
   ctx.save();
-  ctx.fillStyle="#ffd700";
+
+  const g=ctx.createRadialGradient(c.x+7,c.y+7,2,c.x+12,c.y+12,15);
+  g.addColorStop(0,"#fffbd0");
+  g.addColorStop(0.4,"#ffd700");
+  g.addColorStop(1,"#9c6000");
+
+  ctx.fillStyle=g;
   ctx.shadowColor="#ffd700";
   ctx.shadowBlur=20;
 
@@ -597,10 +927,6 @@ function drawRewards(){
   ctx.arc(c.x+12,c.y+12,12,0,Math.PI*2);
   ctx.fill();
 
-  ctx.fillStyle="#8b5c00";
-  ctx.font="bold 15px Arial";
-  ctx.textAlign="center";
-  ctx.fillText("$",c.x+12,c.y+17);
   ctx.restore();
  }
 
@@ -614,6 +940,8 @@ function drawRewards(){
   ctx.restore();
  }
 }
+
+// تفعيل المكافآت
 
 function activateShield(){
  shieldActive=true;
@@ -721,7 +1049,6 @@ function togglePause(){
  if(!running)return;
 
  paused=!paused;
-
  leftPressed=false;
  rightPressed=false;
 
@@ -990,7 +1317,7 @@ function shareGame(){
   return;
  }
 
- const text="جرّب لعبة NEON ESCAPE! 🌌🎮\n"+gameUrl;
+ const text="جرّب لعبة NEON ESCAPE! 🌌🚀\n"+gameUrl;
 
  window.open(
   "https://wa.me/?text="+encodeURIComponent(text),
@@ -998,7 +1325,7 @@ function shareGame(){
  );
 }
 
-// البداية
+// شاشة البداية
 
 function drawPreview(){
  player={x:225,y:225,width:50,height:50};
