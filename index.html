@@ -8,52 +8,124 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
- margin:0;padding:12px;background:#080b19;color:white;
- font-family:Arial,sans-serif;text-align:center
+ margin:0;padding:12px;background:#080b19;
+ color:white;font-family:Arial,sans-serif;text-align:center
 }
+
 h1{
  color:#00e5ff;font-size:32px;
  text-shadow:0 0 18px #00e5ff
 }
+
 .stats{
  display:flex;justify-content:center;gap:8px;
  flex-wrap:wrap;margin:12px
 }
+
 .stat{
  background:#171e38;padding:11px 14px;
  border-radius:12px;border:1px solid #394d78
 }
+
+.game-wrapper{
+ position:relative;
+ width:min(94vw,500px);
+ margin:15px auto;
+ border:2px solid #00e5ff;
+ border-radius:15px;
+ box-shadow:0 0 25px #00e5ff55;
+ overflow:hidden;
+}
+
 canvas{
- width:min(94vw,500px);height:auto;display:block;
- margin:15px auto;border:2px solid #00e5ff;
- border-radius:15px;box-shadow:0 0 25px #00e5ff55;
+ width:100%;height:auto;display:block;
  background:#080d27
 }
+
 button{
- padding:12px 16px;margin:5px;background:#152b53;
- color:white;border:1px solid #00e5ff;
+ padding:12px 16px;margin:5px;
+ background:#152b53;color:white;
+ border:1px solid #00e5ff;
  border-radius:10px;font-size:15px;
- cursor:pointer;touch-action:none
+ cursor:pointer;touch-action:manipulation
 }
+
 button:active{background:#007fbd}
-.controls{
- display:flex;justify-content:center;gap:35px;margin:15px
+
+.pause-button{
+ position:absolute;
+ top:10px;right:10px;
+ z-index:5;
+ width:48px;height:44px;
+ padding:5px;margin:0;
+ font-size:21px;
+ background:#152b53dd;
+ box-shadow:0 0 12px #00e5ff88
 }
+
+.game-overlay{
+ position:absolute;
+ inset:0;
+ z-index:4;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ flex-direction:column;
+ background:rgba(0,0,0,.82);
+ padding:15px
+}
+
+.game-overlay.show{display:flex}
+
+.game-overlay h2{
+ font-size:36px;
+ color:#ff365e;
+ text-shadow:0 0 18px #ff365e;
+ margin:10px
+}
+
+.game-overlay p{
+ font-size:19px;
+ margin:8px
+}
+
+.overlay-button{
+ background:#007fbd;
+ border:2px solid #00e5ff;
+ box-shadow:0 0 20px #00e5ff88;
+ font-size:19px;
+ padding:14px 25px;
+ margin-top:15px
+}
+
+.level-menu{position:relative;display:inline-block}
+
+.level-options{
+ display:none;position:absolute;
+ top:100%;left:50%;
+ transform:translateX(-50%);
+ background:#171e38;
+ border:1px solid #00e5ff;
+ border-radius:12px;padding:8px;
+ width:150px;z-index:10
+}
+
+.level-options.show{display:block}
+.level-options button{display:block;width:100%}
+
+.controls{
+ display:flex;justify-content:center;
+ gap:35px;margin:15px
+}
+
 .controls button{width:110px;font-size:28px}
+
 #message{color:#00e5ff;font-size:19px}
 #shapeName{color:#bd5cff}
 #shieldTimer{color:#00e5ff}
 #speedTimer{color:#ffd700}
-.level-menu{position:relative;display:inline-block}
-.level-options{
- display:none;position:absolute;top:100%;left:50%;
- transform:translateX(-50%);background:#171e38;
- border:1px solid #00e5ff;border-radius:12px;
- padding:8px;width:150px;z-index:10
-}
-.level-options.show{display:block}
-.level-options button{display:block;width:100%}
 </style>
 </head>
 
@@ -81,7 +153,34 @@ button:active{background:#007fbd}
 
 <p>المستوى: <span id="levelName">سهل</span></p>
 
-<canvas id="game" width="500" height="500"></canvas>
+<div class="game-wrapper">
+
+ <button class="pause-button" id="pauseButton"
+ onclick="togglePause()">⏸️</button>
+
+ <canvas id="game" width="500" height="500"></canvas>
+
+ <!-- شاشة نهاية اللعبة -->
+ <div class="game-overlay" id="gameOverScreen">
+  <h2>GAME OVER</h2>
+  <p>⭐ نتيجتك: <span id="finalScore">0</span></p>
+  <p>🪙 العملات: <span id="finalCoins">0</span></p>
+  <p id="recordMessage"></p>
+  <button class="overlay-button" onclick="startGame()">
+   ▶️ ابدأ من جديد
+  </button>
+ </div>
+
+ <!-- شاشة الإيقاف المؤقت -->
+ <div class="game-overlay" id="pauseScreen">
+  <h2 style="color:#00e5ff">PAUSED</h2>
+  <p>⏸️ اللعبة متوقفة مؤقتاً</p>
+  <button class="overlay-button" onclick="togglePause()">
+   ▶️ استكمال اللعب
+  </button>
+ </div>
+
+</div>
 
 <h3 id="message">اختر شخصيتك وابدأ اللعب!</h3>
 
@@ -94,7 +193,6 @@ button:active{background:#007fbd}
 
 <div>
  <button onclick="startGame()">▶️ ابدأ اللعب</button>
- <button onclick="togglePause()" id="pauseButton">⏸️ إيقاف مؤقت</button>
  <button onclick="shareGame()">📲 مشاركة</button>
 </div>
 
@@ -109,7 +207,6 @@ button:active{background:#007fbd}
 <script>
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
-
 const $=id=>document.getElementById(id);
 
 let player;
@@ -168,7 +265,7 @@ for(let i=0;i<85;i++){
  });
 }
 
-// الصوت والموسيقى
+// الصوت
 
 let audioContext=null;
 let musicTimer=null;
@@ -197,6 +294,7 @@ function playTone(freq,duration,volume,type="sine"){
 
  osc.type=type;
  osc.frequency.value=freq;
+
  gain.gain.setValueAtTime(volume,audioContext.currentTime);
  gain.gain.exponentialRampToValueAtTime(
   0.001,audioContext.currentTime+duration
@@ -242,6 +340,8 @@ function deathSound(){
  setTimeout(()=>playTone(180,0.5,0.1),180);
 }
 
+// المستويات
+
 function toggleLevels(){
  $("levelOptions").classList.toggle("show");
 }
@@ -253,8 +353,11 @@ function chooseDifficulty(level){
  $("message").textContent="المستوى الحالي: "+difficulties[level].name;
 }
 
+// الشخصيات
+
 function changeShape(){
  if(running)return;
+
  selectedShape=(selectedShape+1)%shapes.length;
  $("shapeName").textContent=shapes[selectedShape].name;
  drawPreview();
@@ -274,6 +377,7 @@ function drawBackground(){
  for(const star of stars){
   if(running&&!paused){
    star.y+=star.speed;
+
    if(star.y>500){
     star.y=0;
     star.x=Math.random()*500;
@@ -293,19 +397,22 @@ function drawBackground(){
 
 function drawStar(x,y,size){
  ctx.beginPath();
+
  for(let i=0;i<10;i++){
   const r=i%2===0?size:size/2;
   const a=i*Math.PI/5-Math.PI/2;
   const px=x+Math.cos(a)*r;
   const py=y+Math.sin(a)*r;
+
   if(i===0)ctx.moveTo(px,py);
   else ctx.lineTo(px,py);
  }
+
  ctx.closePath();
  ctx.fill();
 }
 
-// الجزيئات والمؤثرات
+// المؤثرات
 
 function createParticles(x,y,color,count=15){
  for(let i=0;i<count;i++){
@@ -343,6 +450,7 @@ function drawParticles(){
 
   if(p.life<=0)particles.splice(i,1);
  }
+
  ctx.globalAlpha=1;
  ctx.shadowBlur=0;
 }
@@ -393,11 +501,7 @@ function drawPlayer(){
   ctx.shadowBlur=25;
 
   ctx.beginPath();
-  ctx.arc(
-   x+25,y+25,
-   37+Math.sin(Date.now()/100)*3,
-   0,Math.PI*2
-  );
+  ctx.arc(x+25,y+25,37+Math.sin(Date.now()/100)*3,0,Math.PI*2);
   ctx.stroke();
   ctx.restore();
  }
@@ -408,6 +512,7 @@ function drawPlayer(){
   ctx.lineWidth=3;
   ctx.shadowColor="#ffd700";
   ctx.shadowBlur=15;
+
   ctx.beginPath();
   ctx.arc(x+25,y+25,33,0,Math.PI*2);
   ctx.stroke();
@@ -441,24 +546,23 @@ function drawObstacles(){
 // المكافآت
 
 function createShield(){
- shields.push({x:15+Math.random()*430,y:-40,width:36,height:36});
+ shields.push({
+  x:15+Math.random()*430,
+  y:-40,width:36,height:36
+ });
 }
 
 function createCoin(){
  coinsItems.push({
   x:25+Math.random()*430,
-  y:-30,
-  width:25,
-  height:25
+  y:-30,width:25,height:25
  });
 }
 
 function createSpeed(){
  speedItems.push({
   x:25+Math.random()*430,
-  y:-35,
-  width:32,
-  height:32
+  y:-35,width:32,height:32
  });
 }
 
@@ -470,6 +574,7 @@ function drawRewards(){
   ctx.shadowBlur=25;
   ctx.strokeStyle="#00e5ff";
   ctx.lineWidth=4;
+
   ctx.beginPath();
   ctx.moveTo(0,-16);
   ctx.lineTo(14,-9);
@@ -487,9 +592,11 @@ function drawRewards(){
   ctx.fillStyle="#ffd700";
   ctx.shadowColor="#ffd700";
   ctx.shadowBlur=20;
+
   ctx.beginPath();
   ctx.arc(c.x+12,c.y+12,12,0,Math.PI*2);
   ctx.fill();
+
   ctx.fillStyle="#8b5c00";
   ctx.font="bold 15px Arial";
   ctx.textAlign="center";
@@ -511,8 +618,10 @@ function drawRewards(){
 function activateShield(){
  shieldActive=true;
  shieldEndTime=Date.now()+10000;
+
  $("shieldTimer").textContent="10 ث";
  $("message").textContent="🛡️ درع الحماية مفعل!";
+
  playTone(700,0.25,0.08);
  createParticles(player.x+25,player.y+25,"#00e5ff",20);
 }
@@ -520,8 +629,10 @@ function activateShield(){
 function activateSpeed(){
  speedActive=true;
  speedEndTime=Date.now()+6000;
+
  $("speedTimer").textContent="6 ث";
  $("message").textContent="⚡ سرعة خارقة!";
+
  playTone(850,0.25,0.08);
  createParticles(player.x+25,player.y+25,"#ffd700",20);
 }
@@ -531,6 +642,7 @@ function updateTimers(){
 
  if(shieldActive){
   const remaining=shieldEndTime-now;
+
   if(remaining<=0){
    shieldActive=false;
    $("shieldTimer").textContent="لا";
@@ -541,6 +653,7 @@ function updateTimers(){
 
  if(speedActive){
   const remaining=speedEndTime-now;
+
   if(remaining<=0){
    speedActive=false;
    $("speedTimer").textContent="عادي";
@@ -564,7 +677,9 @@ function collision(a,b){
 // التحكم
 
 document.addEventListener("keydown",e=>{
- if(["ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
+ if(["ArrowLeft","ArrowRight"," "].includes(e.key)){
+  e.preventDefault();
+ }
 
  if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")leftPressed=true;
  if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")rightPressed=true;
@@ -582,6 +697,7 @@ function holdButton(id,direction){
 
  btn.addEventListener("pointerdown",e=>{
   e.preventDefault();
+
   if(direction==="left")leftPressed=true;
   else rightPressed=true;
  });
@@ -599,25 +715,56 @@ function holdButton(id,direction){
 holdButton("left","left");
 holdButton("right","right");
 
-// شاشة النهاية
+// الإيقاف المؤقت
+
+function togglePause(){
+ if(!running)return;
+
+ paused=!paused;
+
+ leftPressed=false;
+ rightPressed=false;
+
+ if(paused){
+  cancelAnimationFrame(animation);
+  stopMusic();
+
+  $("pauseButton").textContent="▶️";
+  $("pauseScreen").classList.add("show");
+  $("message").textContent="⏸️ اللعبة متوقفة مؤقتاً";
+ }else{
+  $("pauseButton").textContent="⏸️";
+  $("pauseScreen").classList.remove("show");
+
+  $("message").textContent="🔥 أكمل التحدي!";
+
+  update();
+  startMusic();
+ }
+}
+
+// نهاية اللعبة
 
 function endGame(){
  if(!running)return;
 
  running=false;
  paused=false;
+
+ cancelAnimationFrame(animation);
+ stopMusic();
+
  shieldActive=false;
  speedActive=false;
-
- stopMusic();
- deathSound();
 
  leftPressed=false;
  rightPressed=false;
 
  $("shieldTimer").textContent="لا";
  $("speedTimer").textContent="عادي";
- $("pauseButton").textContent="⏸️ إيقاف مؤقت";
+ $("pauseButton").textContent="⏸️";
+
+ deathSound();
 
  let newRecord=false;
 
@@ -631,58 +778,19 @@ function endGame(){
  $("message").textContent=newRecord?
  "🏆 رقم قياسي جديد!":"💀 انتهت اللعبة!";
 
+ $("finalScore").textContent=score;
+ $("finalCoins").textContent=coins;
+
+ $("recordMessage").textContent=newRecord?
+ "🏆 رقم قياسي جديد!":"";
+
+ $("pauseScreen").classList.remove("show");
+ $("gameOverScreen").classList.add("show");
+
  drawBackground();
  drawObstacles();
  drawRewards();
  drawPlayer();
-
- ctx.fillStyle="rgba(0,0,0,0.78)";
- ctx.fillRect(0,0,500,500);
-
- ctx.textAlign="center";
- ctx.fillStyle="#ff365e";
- ctx.font="bold 40px Arial";
- ctx.fillText("GAME OVER",250,205);
-
- ctx.fillStyle="white";
- ctx.font="23px Arial";
- ctx.fillText("Your Score: "+score,250,260);
- ctx.fillText("Coins: "+coins,250,300);
-
- if(newRecord){
-  ctx.fillStyle="#ffd700";
-  ctx.font="bold 23px Arial";
-  ctx.fillText("NEW RECORD!",250,350);
- }
-}
-
-// الإيقاف المؤقت
-
-function togglePause(){
- if(!running)return;
-
- paused=!paused;
- leftPressed=false;
- rightPressed=false;
-
- if(paused){
-  cancelAnimationFrame(animation);
-  stopMusic();
-  $("pauseButton").textContent="▶️ استكمال";
-  $("message").textContent="⏸️ اللعبة متوقفة مؤقتاً";
-
-  ctx.fillStyle="rgba(0,0,0,0.7)";
-  ctx.fillRect(0,0,500,500);
-  ctx.textAlign="center";
-  ctx.fillStyle="#00e5ff";
-  ctx.font="bold 42px Arial";
-  ctx.fillText("PAUSED",250,245);
- }else{
-  $("pauseButton").textContent="⏸️ إيقاف مؤقت";
-  $("message").textContent="🔥 أكمل التحدي!";
-  update();
-  startMusic();
- }
 }
 
 // تحديث اللعبة
@@ -697,6 +805,7 @@ function update(){
    (Math.random()-0.5)*shake,
    (Math.random()-0.5)*shake
   );
+
   shake*=0.85;
   if(shake<0.5)shake=0;
  }
@@ -711,9 +820,9 @@ function update(){
 
  player.x=Math.max(0,Math.min(450,player.x));
 
- spawnCounter++;
-
  const difficulty=difficulties[currentDifficulty];
+
+ spawnCounter++;
 
  if(spawnCounter>=difficulty.spawn){
   createObstacle();
@@ -729,8 +838,6 @@ function update(){
   if(Math.random()<0.65)createSpeed();
   nextSpeedTime=Date.now()+18000+Math.random()*7000;
  }
-
- // ظهور العملات
 
  if(Math.random()<0.018)createCoin();
 
@@ -748,6 +855,7 @@ function update(){
    }else{
     shake=15;
     createParticles(player.x+25,player.y+25,"#ff365e",35);
+
     ctx.restore();
     endGame();
     return;
@@ -755,7 +863,7 @@ function update(){
   }
  }
 
- // الدرع
+ // الدروع
 
  for(let i=shields.length-1;i>=0;i--){
   const s=shields[i];
@@ -776,10 +884,13 @@ function update(){
   if(collision(player,c)){
    coins++;
    score+=5;
+
    $("coins").textContent=coins;
    $("score").textContent=score;
+
    createParticles(c.x+12,c.y+12,"#ffd700",20);
    playTone(950,0.12,0.07);
+
    coinsItems.splice(i,1);
   }
  }
@@ -819,7 +930,7 @@ function update(){
  animation=requestAnimationFrame(update);
 }
 
-// بداية اللعبة
+// بدء اللعبة
 
 function startGame(){
  initAudio();
@@ -857,8 +968,13 @@ function startGame(){
 
  $("score").textContent="0";
  $("coins").textContent="0";
+
  $("message").textContent="🔥 حاول تحطم رقمك القياسي!";
- $("pauseButton").textContent="⏸️ إيقاف مؤقت";
+
+ $("gameOverScreen").classList.remove("show");
+ $("pauseScreen").classList.remove("show");
+
+ $("pauseButton").textContent="⏸️";
 
  update();
  startMusic();
@@ -875,12 +991,14 @@ function shareGame(){
  }
 
  const text="جرّب لعبة NEON ESCAPE! 🌌🎮\n"+gameUrl;
- const url="https://wa.me/?text="+encodeURIComponent(text);
 
- window.open(url,"_blank");
+ window.open(
+  "https://wa.me/?text="+encodeURIComponent(text),
+  "_blank"
+ );
 }
 
-// شاشة البداية
+// البداية
 
 function drawPreview(){
  player={x:225,y:225,width:50,height:50};
