@@ -1,0 +1,17 @@
+{
+  "background_color": "#050713",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "NEON ESCAP",
+  "orientation": "any",
+  "scope": "/Game/",
+  "short_name": "NEON ESCAP",
+  "start_url": "/Game/",
+  "theme_color": "#00d9ff",
+  "id": "neon-escape",
+  "description": "An exciting endless runner game",
+  "lang": "en",
+  "categories": [
+    "games"
+  ]
+}
