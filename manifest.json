@@ -1,17 +1,26 @@
+
 {
-  "background_color": "#050713",
-  "dir": "ltr",
+  "name": "NEON ESCAPE",
+  "short_name": "NEON ESCAPE",
+  "description": "لعبة فضائية ممتعة، تجنب العقبات واجمع العملات!",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "name": "NEON ESCAP",
-  "orientation": "any",
-  "scope": "/Game/",
-  "short_name": "NEON ESCAP",
-  "start_url": "/Game/",
-  "theme_color": "#00d9ff",
-  "id": "neon-escape",
-  "description": "An exciting endless runner game",
-  "lang": "en",
-  "categories": [
-    "games"
+  "orientation": "portrait",
+  "background_color": "#030611",
+  "theme_color": "#030611",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
